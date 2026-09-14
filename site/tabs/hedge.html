@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FX Hedging Pressure — Acheron Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--paper:#F7F1E6;--card:#FDFAF3;--ink:#221C14;--muted:#6E6350;--line:#E2D8C4;--orange:#D2622A;--teal:#0E756C;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1160px;margin:0 auto;padding:28px 22px 60px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--teal);text-transform:uppercase}
+h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.01em;margin:6px 0 4px}
+.sub{color:var(--muted);max-width:840px}
+.mast{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:18px}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:7px 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--card);white-space:nowrap}
+.pill b{color:var(--teal)}
+.asof{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;text-align:right}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin:20px 0 8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi .l{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;margin-top:5px}
+.kpi .d{font-size:12px;color:var(--muted);margin-top:3px}
+.pos{color:var(--teal)}.neg{color:var(--orange)}
+.banner{background:#F2E9D6;border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:8px;padding:11px 15px;margin:14px 0 4px;font-size:13px;color:#5A4632}
+.banner b{color:var(--ink)}
+section{margin:30px 0}
+h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:2px}
+.cap{font-size:12.5px;color:var(--muted);margin-bottom:12px;max-width:880px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.chartbox{position:relative;height:400px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:11.5px;margin-bottom:8px;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:20px;height:0;border-top:3px solid}
+.chip{display:inline-block;width:11px;height:11px;border-radius:3px;background:rgba(210,98,42,.22);border:1px solid rgba(210,98,42,.5)}
+footer{border-top:2px solid var(--ink);margin-top:44px;padding-top:18px;font-size:12.5px;color:var(--muted)}
+footer h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);font-size:13.5px;margin:14px 0 4px}
+footer p{max-width:900px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+  <div>
+    <div class="eyebrow">Acheron Insights · FX / Flows</div>
+    <h1>FX Hedging Pressure</h1>
+    <div class="sub">The Brigden/Nordvig channel, institutionalised by the BIS after April 2025: foreigners hold $30T+ of US assets, roughly half of Europe's holdings unhedged, and their hedge ratios rise precisely when the dollar stops being a natural hedge — when equities and the dollar start falling <i>together</i>. Rising hedge ratios mean forward dollar selling. This gauge tracks the trigger: the rolling correlation between S&amp;P 500 and DXY daily returns.</div>
+  </div>
+  <div>
+    <div class="pill" id="pill"></div>
+    <div class="asof" id="asof"></div>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+<div class="banner" id="banner"></div>
+
+<section>
+  <h2>The natural-hedge gauge</h2>
+  <div class="cap">Rolling 60-day correlation of daily S&amp;P 500 and DXY returns, month-end, since 1990. <span class="chip"></span>&nbsp;Orange segments mark the broken-hedge state (correlation above zero): dollar weakness compounding equity losses for unhedged foreign investors — the configuration that forces hedge ratios up. DXY YoY on the right axis. Gray bands are US recessions.</div>
+  <div class="panel">
+    <div class="legend">
+      <span><i class="sw" style="border-color:#4E6577"></i>60d SPX–DXY correlation (orange when &gt; 0)</span>
+      <span><i class="sw" style="border-color:#221C14"></i>DXY YoY % (rhs)</span>
+    </div>
+    <div class="chartbox"><canvas id="hero"></canvas></div>
+  </div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+<script>
+const HG = {"months": ["1990-01", "1990-02", "1990-03", "1990-04", "1990-05", "1990-06", "1990-07", "1990-08", "1990-09", "1990-10", "1990-11", "1990-12", "1991-01", "1991-02", "1991-03", "1991-04", "1991-05", "1991-06", "1991-07", "1991-08", "1991-09", "1991-10", "1991-11", "1991-12", "1992-01", "1992-02", "1992-03", "1992-04", "1992-05", "1992-06", "1992-07", "1992-08", "1992-09", "1992-10", "1992-11", "1992-12", "1993-01", "1993-02", "1993-03", "1993-04", "1993-05", "1993-06", "1993-07", "1993-08", "1993-09", "1993-10", "1993-11", "1993-12", "1994-01", "1994-02", "1994-03", "1994-04", "1994-05", "1994-06", "1994-07", "1994-08", "1994-09", "1994-10", "1994-11", "1994-12", "1995-01", "1995-02", "1995-03", "1995-04", "1995-05", "1995-06", "1995-07", "1995-08", "1995-09", "1995-10", "1995-11", "1995-12", "1996-01", "1996-02", "1996-03", "1996-04", "1996-05", "1996-06", "1996-07", "1996-08", "1996-09", "1996-10", "1996-11", "1996-12", "1997-01", "1997-02", "1997-03", "1997-04", "1997-05", "1997-06", "1997-07", "1997-08", "1997-09", "1997-10", "1997-11", "1997-12", "1998-01", "1998-02", "1998-03", "1998-04", "1998-05", "1998-06", "1998-07", "1998-08", "1998-09", "1998-10", "1998-11", "1998-12", "1999-01", "1999-02", "1999-03", "1999-04", "1999-05", "1999-06", "1999-07", "1999-08", "1999-09", "1999-10", "1999-11", "1999-12", "2000-01", "2000-02", "2000-03", "2000-04", "2000-05", "2000-06", "2000-07", "2000-08", "2000-09", "2000-10", "2000-11", "2000-12", "2001-01", "2001-02", "2001-03", "2001-04", "2001-05", "2001-06", "2001-07", "2001-08", "2001-09", "2001-10", "2001-11", "2001-12", "2002-01", "2002-02", "2002-03", "2002-04", "2002-05", "2002-06", "2002-07", "2002-08", "2002-09", "2002-10", "2002-11", "2002-12", "2003-01", "2003-02", "2003-03", "2003-04", "2003-05", "2003-06", "2003-07", "2003-08", "2003-09", "2003-10", "2003-11", "2003-12", "2004-01", "2004-02", "2004-03", "2004-04", "2004-05", "2004-06", "2004-07", "2004-08", "2004-09", "2004-10", "2004-11", "2004-12", "2005-01", "2005-02", "2005-03", "2005-04", "2005-05", "2005-06", "2005-07", "2005-08", "2005-09", "2005-10", "2005-11", "2005-12", "2006-01", "2006-02", "2006-03", "2006-04", "2006-05", "2006-06", "2006-07", "2006-08", "2006-09", "2006-10", "2006-11", "2006-12", "2007-01", "2007-02", "2007-03", "2007-04", "2007-05", "2007-06", "2007-07", "2007-08", "2007-09", "2007-10", "2007-11", "2007-12", "2008-01", "2008-02", "2008-03", "2008-04", "2008-05", "2008-06", "2008-07", "2008-08", "2008-09", "2008-10", "2008-11", "2008-12", "2009-01", "2009-02", "2009-03", "2009-04", "2009-05", "2009-06", "2009-07", "2009-08", "2009-09", "2009-10", "2009-11", "2009-12", "2010-01", "2010-02", "2010-03", "2010-04", "2010-05", "2010-06", "2010-07", "2010-08", "2010-09", "2010-10", "2010-11", "2010-12", "2011-01", "2011-02", "2011-03", "2011-04", "2011-05", "2011-06", "2011-07", "2011-08", "2011-09", "2011-10", "2011-11", "2011-12", "2012-01", "2012-02", "2012-03", "2012-04", "2012-05", "2012-06", "2012-07", "2012-08", "2012-09", "2012-10", "2012-11", "2012-12", "2013-01", "2013-02", "2013-03", "2013-04", "2013-05", "2013-06", "2013-07", "2013-08", "2013-09", "2013-10", "2013-11", "2013-12", "2014-01", "2014-02", "2014-03", "2014-04", "2014-05", "2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2015-07", "2015-08", "2015-09", "2015-10", "2015-11", "2015-12", "2016-01", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03", "2018-04", "2018-05", "2018-06", "2018-07", "2018-08", "2018-09", "2018-10", "2018-11", "2018-12", "2019-01", "2019-02", "2019-03", "2019-04", "2019-05", "2019-06", "2019-07", "2019-08", "2019-09", "2019-10", "2019-11", "2019-12", "2020-01", "2020-02", "2020-03", "2020-04", "2020-05", "2020-06", "2020-07", "2020-08", "2020-09", "2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04", "2021-05", "2021-06", "2021-07", "2021-08", "2021-09", "2021-10", "2021-11", "2021-12", "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07"], "corr": [-0.08, 0.01, -0.02, 0.16, -0.13, -0.08, 0.14, 0.23, 0.29, 0.19, -0.03, -0.1, -0.43, -0.41, -0.4, -0.15, -0.03, -0.01, 0.06, -0.38, -0.45, -0.35, 0.27, 0.1, -0.01, -0.15, -0.03, 0.02, 0.1, -0.05, -0.03, 0.17, 0.25, 0.26, 0.2, 0.08, -0.13, 0.16, 0.09, 0.16, -0.02, 0.0, -0.06, -0.08, -0.12, -0.23, -0.16, -0.1, -0.29, -0.19, -0.06, 0.14, 0.26, 0.3, 0.36, 0.47, 0.41, 0.51, 0.27, 0.13, 0.14, 0.19, 0.41, 0.36, 0.36, 0.26, 0.3, 0.12, 0.08, 0.04, 0.14, 0.15, 0.2, 0.15, -0.09, -0.21, -0.0, 0.24, 0.16, 0.15, 0.23, 0.23, 0.24, 0.33, 0.29, 0.28, 0.12, 0.03, 0.02, 0.09, 0.09, 0.42, 0.55, 0.37, 0.24, 0.26, 0.31, 0.23, 0.05, 0.05, -0.1, -0.18, -0.19, 0.03, 0.07, 0.12, 0.2, 0.18, 0.29, 0.33, 0.25, 0.14, 0.15, 0.3, 0.48, 0.57, 0.54, 0.56, 0.48, 0.4, 0.11, -0.05, -0.11, 0.11, 0.14, 0.16, 0.03, 0.01, -0.15, -0.15, -0.03, 0.15, 0.38, 0.33, -0.04, 0.08, -0.01, -0.0, 0.1, 0.3, 0.35, 0.43, 0.45, 0.32, 0.29, 0.25, 0.23, 0.19, 0.36, 0.46, 0.14, 0.11, 0.22, 0.53, 0.43, 0.45, 0.31, 0.4, 0.53, 0.55, 0.48, 0.14, 0.19, 0.18, 0.3, 0.39, 0.42, 0.43, 0.26, -0.03, -0.01, -0.15, -0.16, -0.35, -0.29, 0.03, 0.03, 0.19, -0.04, 0.01, -0.18, 0.03, 0.07, 0.21, 0.03, -0.06, -0.14, -0.11, -0.08, 0.03, 0.1, 0.08, -0.06, -0.06, 0.02, -0.16, -0.1, -0.17, -0.14, -0.3, -0.07, -0.0, 0.2, 0.14, 0.04, 0.06, -0.02, -0.0, -0.02, -0.02, 0.07, -0.06, -0.05, -0.22, 0.05, 0.02, 0.04, -0.05, 0.08, 0.27, 0.4, 0.39, 0.47, 0.57, 0.4, -0.05, -0.2, -0.27, -0.3, -0.31, -0.49, -0.46, -0.35, -0.37, -0.41, -0.41, -0.43, -0.49, -0.57, -0.49, -0.44, -0.39, -0.39, -0.42, -0.4, -0.44, -0.4, -0.45, -0.42, -0.48, -0.53, -0.58, -0.45, -0.2, -0.31, -0.35, -0.53, -0.57, -0.56, -0.49, -0.54, -0.62, -0.82, -0.83, -0.68, -0.55, -0.44, -0.46, -0.44, -0.53, -0.56, -0.6, -0.59, -0.5, -0.58, -0.44, -0.25, -0.29, -0.39, -0.37, -0.11, -0.18, -0.13, 0.02, -0.04, -0.11, -0.24, -0.15, 0.05, 0.09, 0.09, -0.11, 0.07, 0.11, -0.01, 0.04, -0.0, 0.13, 0.15, 0.32, 0.43, 0.26, -0.21, -0.32, -0.24, 0.16, 0.2, 0.48, 0.43, 0.46, 0.24, 0.33, 0.33, 0.3, 0.21, 0.09, -0.08, -0.36, -0.43, -0.47, -0.13, -0.27, -0.09, 0.09, 0.22, 0.17, 0.24, 0.06, -0.0, 0.08, 0.28, 0.25, 0.26, 0.32, 0.35, 0.34, 0.11, -0.28, -0.23, -0.16, -0.06, -0.12, -0.22, -0.15, -0.23, 0.0, -0.13, 0.02, 0.01, 0.14, -0.02, -0.09, -0.01, -0.08, -0.06, 0.24, 0.31, 0.18, -0.01, 0.04, 0.31, 0.46, 0.19, 0.11, 0.08, -0.24, -0.32, -0.35, -0.25, -0.29, -0.43, -0.3, -0.34, -0.12, -0.2, -0.26, -0.46, -0.48, -0.43, -0.4, -0.34, -0.3, -0.01, -0.03, -0.05, -0.19, -0.39, -0.28, -0.41, -0.32, -0.42, -0.31, -0.55, -0.63, -0.73, -0.67, -0.64, -0.42, -0.17, -0.06, 0.05, -0.17, -0.3, -0.44, -0.34, -0.26, -0.36, -0.46, -0.5, -0.39, -0.25, -0.39, -0.4, -0.41, -0.2, 0.01, 0.04, -0.16, 0.17, 0.01, -0.11, -0.36, -0.0, 0.22, 0.32, 0.28, 0.24, -0.22, -0.18, -0.15, 0.08, 0.06, -0.01, -0.06, -0.29, -0.52, -0.6, -0.58, -0.52], "yoy": [-4.5, -1.7, -4.5, -4.7, -9.7, -10.7, -10.5, -15.4, -12.7, -15.1, -13.9, -10.9, -11.3, -9.9, -1.8, -1.6, 0.2, 5.4, 7.3, 8.0, 4.5, 8.0, 6.3, 0.5, 6.7, 5.8, -2.6, -2.1, -6.3, -12.8, -12.4, -15.6, -9.8, -2.6, 3.0, 10.6, 5.7, 5.7, 2.5, -0.1, 2.1, 11.8, 16.4, 19.1, 14.5, 8.5, 5.9, 4.9, 3.4, 0.5, 1.3, 2.9, 3.9, -4.3, -5.8, -4.6, -5.3, -9.9, -7.4, -8.4, -8.0, -9.1, -12.0, -11.2, -10.8, -9.0, -9.2, -4.6, -4.1, -2.4, -4.3, -4.5, -0.7, 0.4, 5.6, 7.6, 6.3, 7.6, 5.3, 0.9, 4.3, 4.5, 3.1, 4.0, 6.5, 10.0, 9.5, 10.4, 8.1, 8.9, 16.0, 14.6, 10.4, 9.4, 11.2, 13.0, 8.3, 5.2, 7.2, 2.6, 5.9, 5.7, 1.6, 1.2, -1.0, -2.0, -1.6, -5.5, -4.7, -1.1, -1.4, 1.3, 2.1, 1.7, -1.4, -0.2, 2.5, 5.7, 6.0, 8.2, 9.4, 7.3, 5.3, 9.0, 6.1, 3.9, 9.8, 12.7, 14.9, 17.8, 13.0, 7.5, 5.1, 5.7, 11.3, 5.2, 9.5, 11.8, 6.9, 0.7, 0.2, -1.5, 0.8, 6.6, 8.8, 6.4, 1.1, -0.6, -6.1, -11.2, -8.3, -5.7, -5.8, -7.2, -8.4, -12.8, -16.9, -16.3, -16.5, -15.6, -16.6, -10.7, -9.8, -8.3, -13.1, -13.0, -15.2, -14.7, -12.7, -12.4, -11.6, -6.9, -4.6, -6.3, -7.2, -9.3, -5.9, -8.4, -9.3, -7.0, -4.1, -5.5, -4.1, -6.7, -1.3, 0.3, -0.7, -1.5, 2.5, 6.1, 11.9, 12.8, 6.4, 9.2, 6.7, 2.0, -3.5, -4.4, -4.5, -2.9, -4.0, -5.3, -9.4, -8.2, -4.9, -7.3, -7.6, -5.4, -2.9, -3.9, -5.3, -5.0, -9.6, -10.4, -8.2, -8.4, -11.1, -11.8, -13.4, -11.0, -11.4, -11.5, -9.3, -4.2, 2.2, 12.0, 13.6, 6.0, 14.4, 19.4, 19.0, 16.7, 10.4, 10.6, 7.0, 1.0, -3.5, -10.9, -13.5, -4.2, -7.6, -8.7, -5.1, -3.2, 7.5, 7.4, 4.1, 6.4, 2.7, 1.3, 8.4, 1.5, -2.2, -4.3, -6.4, -10.9, -13.7, -13.6, -9.4, -10.9, -0.2, -1.4, -3.5, 1.4, 2.0, 2.4, 4.0, 8.0, 11.3, 9.9, 11.8, 9.6, 1.8, 4.9, 2.2, -0.5, -0.1, 4.1, 5.1, 3.7, 0.4, 1.9, -1.4, 1.0, 0.4, 0.4, 0.7, 0.3, 2.6, -2.7, -3.5, -2.7, -3.6, -4.1, 0.0, 0.8, 7.1, 8.3, 9.5, 12.8, 16.6, 19.4, 22.8, 19.0, 20.6, 19.7, 19.5, 16.0, 12.1, 11.6, 13.4, 9.3, 5.1, 3.1, -3.8, -1.6, -1.1, 0.7, -1.9, 0.1, -0.9, 1.5, 1.3, 3.8, -0.1, 3.0, 6.1, 6.4, 1.1, -0.5, -2.8, -3.5, -2.5, -4.0, -8.4, -10.0, -10.4, -10.4, -10.2, -7.3, -3.0, -1.1, 1.8, 2.7, 2.3, 2.7, 4.6, 4.4, 7.2, 6.1, 7.9, 6.1, 4.0, 1.6, 4.3, 4.0, 4.4, 0.2, 1.0, 0.2, 1.9, 2.0, 1.8, 1.6, 0.6, 1.3, -5.1, -6.9, -5.5, -3.4, -6.5, -6.7, -7.0, -7.3, -5.9, -7.8, -8.5, -5.1, -1.4, 0.5, 0.4, 0.1, 4.5, 6.4, 6.6, 6.4, 5.4, 12.8, 13.0, 13.3, 14.9, 17.3, 19.0, 18.5, 10.4, 8.2, 5.8, 8.4, 4.3, -1.3, 2.5, -1.7, -3.8, -4.7, -5.3, -4.4, -2.3, -2.1, 1.1, -0.7, 2.0, 4.5, 0.3, 2.9, 2.2, -1.9, -5.1, -2.5, 2.2, 7.1, 4.9, 3.3, -0.3, -6.4, -5.1, -8.5, -3.9, -3.9, -3.0, -4.0, -5.9, -9.4, -10.5, -9.3, -4.1, -1.4, -0.4, 4.4, 0.9], "rec": [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "events": [["2025-04", "BIS: hedging wave drives April slide"], ["2026-01", "natural hedge fragile again"]], "stats": {"now": -0.52, "latest": "2026-07", "share_pos": 48, "ep_months": 6, "b3": 0.76, "t3": 0.7, "b6": 0.56, "t6": 0.3, "n": 433, "dxy_last": 100.97, "dxy_last_m": "2026-07"}};
+const C={ink:"#221C14",muted:"#6E6350",line:"#E2D8C4",orange:"#D2622A",teal:"#0E756C",slate:"#4E6577",band:"rgba(34,28,20,0.07)"};
+const M=HG.months,S=HG.stats;
+Chart.defaults.font.family="'IBM Plex Mono',monospace";
+Chart.defaults.font.size=10.5;Chart.defaults.color=C.muted;
+const fmtM=s=>{const[y,m]=s.split("-");return["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+m-1]+"-"+y.slice(2)};
+
+document.getElementById("pill").innerHTML=`NATURAL HEDGE: <b>RESTORED</b> · PRESSURE OFF`;
+document.getElementById("asof").textContent=`daily data through ${fmtM(S.latest)} · DXY ${S.dxy_last}`;
+const K=[["Correlation now",S.now.toFixed(2),`strongly negative — dollar cushioning equity risk again`,"pos"],
+ ["The 2025 wave",S.ep_months+" months > 0",`Apr–Jul 2025 flip; BIS ties the April slide to hedging flows`,"neg"],
+ ["Base rate since 1990",S.share_pos+"%",`of months with corr > 0 — the level alone is not a signal`,""],
+ ["Unconditional lead test","t = "+S.t3,`corr → fwd 3m DXY, n=${S.n} · none — this is a pressure gauge`,""]];
+document.getElementById("kpis").innerHTML=K.map(x=>`<div class="kpi"><div class="l">${x[0]}</div><div class="v ${x[3]}">${x[1]}</div><div class="d">${x[2]}</div></div>`).join("");
+document.getElementById("banner").innerHTML=`<b>A pressure gauge, not a calibrated lead.</b> The mechanism is real and now BIS-documented: when this correlation flips positive while the foreign-held stock of US assets is large and under-hedged, hedge-ratio increases translate into sustained forward dollar selling — that is the April-2025 episode. But the correlation has spent ${S.share_pos}% of months above zero since 1990, most of them benign, and it carries no unconditional forward-return information (t=${S.t3} at 3 months, t=${S.t6} at 6). What matters is the <i>configuration</i>: flip + large unhedged stock + falling US assets. One full episode is not a backtest; treat this as a monitoring dial for that configuration. Currently the dial reads calm: correlation ${S.now}, the natural hedge firmly re-established since Mar-2026.`;
+
+const qTicks=v=>{const s=M[v];return s&&s.endsWith("-01")&&(+s.slice(0,4))%5===0?s.slice(0,4):null};
+const bands={id:"b",beforeDatasetsDraw(ch){const{ctx,chartArea:a,scales:{x,y}}=ch;if(!a)return;
+ ctx.save();ctx.fillStyle=C.band;let s=null;
+ for(let i=0;i<HG.rec.length;i++){const r=HG.rec[i]===1;if(r&&s===null)s=i;if((!r||i===HG.rec.length-1)&&s!==null){const e=r?i:i-1;ctx.fillRect(x.getPixelForValue(s),a.top,Math.max(1,x.getPixelForValue(e)-x.getPixelForValue(s)),a.bottom-a.top);s=null;}}
+ // shade corr>0 months lightly
+ ctx.fillStyle="rgba(210,98,42,0.10)";s=null;
+ for(let i=0;i<HG.corr.length;i++){const r=HG.corr[i]!=null&&HG.corr[i]>0;if(r&&s===null)s=i;if((!r||i===HG.corr.length-1)&&s!==null){const e=r?i:i-1;ctx.fillRect(x.getPixelForValue(s),a.top,Math.max(1,x.getPixelForValue(e)-x.getPixelForValue(s)),a.bottom-a.top);s=null;}}
+ const zy=y.getPixelForValue(0);ctx.strokeStyle=C.ink;ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(a.left,zy);ctx.lineTo(a.right,zy);ctx.stroke();ctx.setLineDash([]);
+ ctx.restore();}};
+const evPlugin={id:"ev",afterDatasetsDraw(ch){const{ctx,chartArea:a,scales:{x}}=ch;
+ ctx.save();ctx.font="9.5px 'IBM Plex Mono',monospace";ctx.fillStyle=C.muted;
+ HG.events.forEach(e=>{const i=M.indexOf(e[0]);if(i<0)return;const px=x.getPixelForValue(i);
+  ctx.strokeStyle="rgba(110,99,80,.45)";ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(px,a.top+14);ctx.lineTo(px,a.bottom);ctx.stroke();ctx.setLineDash([]);
+  ctx.save();ctx.translate(px+3,a.top+16);ctx.rotate(Math.PI/2);ctx.textAlign="left";ctx.fillText(e[1],0,0);ctx.restore();});
+ ctx.restore();}};
+
+new Chart(document.getElementById("hero"),{type:"line",
+ data:{labels:M,datasets:[
+  {label:"60d SPX–DXY correlation",data:HG.corr,borderWidth:2,pointRadius:0,tension:.25,yAxisID:"y",
+   segment:{borderColor:c=>{const v=HG.corr[c.p1DataIndex];return v!=null&&v>0?C.orange:C.slate;}},borderColor:C.slate},
+  {label:"DXY YoY %",data:HG.yoy,borderColor:C.ink,borderWidth:1.4,pointRadius:0,tension:.2,yAxisID:"y2"}]},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+  plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>fmtM(M[i[0].dataIndex])}}},
+  scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:false,callback:qTicks}},
+   y:{position:"left",min:-1,max:1,grid:{color:C.line},title:{display:true,text:"correlation"}},
+   y2:{position:"right",grid:{display:false},title:{display:true,text:"DXY YoY %"}}}},
+ plugins:[bands,evPlugin]});
+
+document.getElementById("foot").innerHTML=`
+<h4>Construction and reading</h4>
+<p>Rolling 60-trading-day Pearson correlation of daily S&amp;P 500 and DXY returns, sampled month-end (Yahoo daily data, 1971–present; displayed 1990+). Negative correlation is the dollar's "natural hedge" state — the dollar rallies when US equities fall, cushioning unhedged foreign portfolios and suppressing hedge demand. A flip to positive removes that cushion; with foreign holdings above $30 trillion and, on Morgan Stanley's estimate, just over half of Europe's $8 trillion unhedged, hedge-ratio increases from a low base translate into persistent forward dollar sales, which dealers offset by selling spot. The BIS attributes the April-2025 dollar slide to exactly this loop, and the gauge captures it: the correlation flipped positive April through July 2025, normalised in August, hovered near zero through early 2026, and has since fallen to strongly negative — pressure off.</p>
+<h4>Limits and extensions</h4>
+<p>This dial is deliberately not calibrated as a lead: the correlation has been positive in ${S.share_pos}% of months since 1990 — including long benign stretches in the 1990s when the regime was structurally different — and the unconditional mapping to forward dollar returns is nil. The information is conditional: the flip matters when it coincides with a large, under-hedged foreign asset stock and falling US asset prices. Two extensions would sharpen it when the configuration next appears: the Danmarks Nationalbank pension-sector hedge ratio (the public series behind most sell-side hedging charts) as the state variable, and Japan's MOF weekly securities flows as the flow confirmation; both are manual-refresh sources and are noted here rather than wired in. Sources: Yahoo Finance dailies; BIS Bulletin 105; NBER recessions.</p>
+<p style="margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px">ACHERON INSIGHTS · FX HEDGING PRESSURE · BUILD JUL-2026</p>`;
+</script>
+<script>
+(function(){
+ function report(){
+   var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+   parent.postMessage({__fh:h,id:window.frameElement?window.frameElement.id:null},"*");
+ }
+ window.addEventListener("load",function(){report();setTimeout(report,600);setTimeout(report,1600);});
+ window.addEventListener("resize",report);
+ if(window.ResizeObserver){new ResizeObserver(report).observe(document.documentElement);}
+})();
+</script>
+
+
+</body>
+</html>

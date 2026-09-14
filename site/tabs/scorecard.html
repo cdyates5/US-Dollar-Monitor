@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Composite Scorecard — Acheron Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F7F1E6;--card:#FDFAF3;--ink:#221C14;--muted:#6E6350;--line:#E2D8C4;--orange:#D2622A;--teal:#0E756C;--ochre:#A67A22;--slate:#4E6577;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1160px;margin:0 auto;padding:28px 22px 60px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--teal);text-transform:uppercase}
+h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.01em;margin:6px 0 4px}
+.sub{color:var(--muted);max-width:840px}
+.mast{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:18px}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:7px 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--card);white-space:nowrap}
+.pill b{color:var(--teal)}
+.asof{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;text-align:right}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:20px 0 8px}
+.tcell{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+.tcell .l{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tcell .v{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:700;margin-top:4px}
+.tcell .d{font-size:12.5px;color:var(--muted);margin-top:4px}
+.v.pos{color:var(--teal)}.v.rich{color:var(--ochre)}.v.calm{color:var(--slate)}
+.banner{background:#F2E9D6;border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:8px;padding:12px 16px;margin:14px 0 4px;font-size:13.2px;color:#5A4632}
+.banner b{color:var(--ink)}
+section{margin:28px 0}
+h2{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;margin-bottom:2px}
+.cap{font-size:12.5px;color:var(--muted);margin-bottom:10px;max-width:880px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+thead th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--ink);background:var(--card)}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover{background:#F4EDDD}
+tbody tr:last-child td{border-bottom:none}
+.mname{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;white-space:nowrap}
+.mname .ch{display:block;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:1px}
+.rd{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;white-space:nowrap}
+.rd .sb{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.chip.pos{background:rgba(14,117,108,.13);color:var(--teal);border:1px solid rgba(14,117,108,.4)}
+.chip.neg{background:rgba(210,98,42,.12);color:var(--orange);border:1px solid rgba(210,98,42,.4)}
+.chip.rich{background:rgba(166,122,34,.13);color:var(--ochre);border:1px solid rgba(166,122,34,.4)}
+.chip.calm{background:rgba(78,101,119,.12);color:var(--slate);border:1px solid rgba(78,101,119,.38)}
+.chip.dead{background:rgba(110,99,80,.12);color:var(--muted);border:1px solid rgba(110,99,80,.35)}
+.ev{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.note{font-size:12.3px;color:#4a4234}
+.hz{font-family:'IBM Plex Mono',monospace;font-size:11.5px;white-space:nowrap}
+.go{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+tr:hover .go{color:var(--orange)}
+.dim td{opacity:.72}
+.dim:hover td{opacity:1}
+footer{border-top:2px solid var(--ink);margin-top:40px;padding-top:16px;font-size:12.5px;color:var(--muted)}
+footer p{max-width:900px;margin-bottom:6px}
+@media(max-width:840px){ .hz,.ev{display:none} thead th:nth-child(4),thead th:nth-child(5){display:none} td:nth-child(4),td:nth-child(5){display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+  <div>
+    <div class="eyebrow">Acheron Insights · FX / Synthesis</div>
+    <h1>Composite Scorecard</h1>
+    <div class="sub">The weight of evidence across all twelve models, on one page: current readings, stances, horizons and fit statistics for the live signals; the valuation and flow lenses; and the audited channels shown with their verdicts — because knowing what no longer binds is part of the read. Every row opens its model tab.</div>
+  </div>
+  <div>
+    <div class="pill">CYCLICAL <b>USD-POSITIVE</b> · VALUATION RICH</div>
+    <div class="asof">readings as of the Jul-2026 build · DXY 100.9</div>
+  </div>
+</header>
+
+<div class="tally">
+  <div class="tcell"><div class="l">Cyclical · 3–12 months</div><div class="v pos">USD-positive</div><div class="d">All four cyclical-horizon signals lean firmer — Lead Index, Real Curve, PMI gap, Forex Risk. None negative.</div></div>
+  <div class="tcell"><div class="l">Valuation</div><div class="v rich">Rich</div><div class="d">+7.8% above contemporaneous fair value; ≈30% PPP-overvalued, worth ≈ −3.7%/yr of secular pull.</div></div>
+  <div class="tcell"><div class="l">Flows &amp; stress</div><div class="v calm">Calm</div><div class="d">Hedging dial off (corr −0.52), Treasury-premium gauge +5bp, twin-deficit backdrop wide but quiet.</div></div>
+</div>
+
+<div class="banner"><b>The read: cyclically firm, secularly expensive.</b> Every signal that works at the 3–12 month horizon points dollar-positive — the Lead Index at +0.42σ maps to +3.8% DXY YoY by Nov-26, the re-steepened real curve implies ≈+1.3%, US manufacturing confidence sits above its partners, and loose risk/liquidity conditions imply +3.7% on the twelve-month fit. Both valuation anchors say that firmness is running on an expensive base. Flows are quiet: the 2025 hedging wave has fully unwound. The greyed rows are as load-bearing as the live ones — external adjustment, the fiscal level, money gaps and the publicly-measured convenience yield have each been tested and shown not to bind in the modern sample.</div>
+
+<section>
+  <h2>Live signals</h2>
+  <div class="cap">Models with demonstrated lead at their stated horizon, ordered short to long.</div>
+  <table id="t-live"><thead><tr><th>Model</th><th>Reading</th><th>Stance</th><th>Horizon</th><th>Evidence</th><th>Note</th><th></th></tr></thead><tbody></tbody></table>
+</section>
+
+<section>
+  <h2>Valuation &amp; flow lenses</h2>
+  <div class="cap">Context, attribution and monitoring — not timing inputs.</div>
+  <table id="t-lens"><thead><tr><th>Model</th><th>Reading</th><th>Stance</th><th>Horizon</th><th>Evidence</th><th>Note</th><th></th></tr></thead><tbody></tbody></table>
+</section>
+
+<section>
+  <h2>Audited channels</h2>
+  <div class="cap">Widely-circulated dollar drivers, reconstructed and stress-tested; each failed at cyclical horizons in the modern sample. Kept on the board deliberately.</div>
+  <table id="t-dead"><thead><tr><th>Model</th><th>Reading</th><th>Verdict</th><th>Horizon</th><th>Evidence</th><th>Note</th><th></th></tr></thead><tbody></tbody></table>
+</section>
+
+<footer>
+<p><b style="color:var(--ink)">How stances are assigned.</b> No averaging across models — the readings are incommensurate by construction. Each stance is the model's own current output at its own horizon, with its fit statistics alongside so conviction can be weighed per row. Cyclical direction is called from the live-signal group only; valuation and flow rows condition it; audited rows carry no weight and are shown with the verdict from their tab.</p>
+<p style="margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px">ACHERON INSIGHTS · COMPOSITE SCORECARD · BUILD JUL-2026</p>
+</footer>
+</div>
+<script>
+const ROWS_DATA = {};
+
+// builder injects ROWS_DATA as a flat array; regroup to {live,lens,dead} the template expects
+var ROWS=(Array.isArray(ROWS_DATA)&&ROWS_DATA.length)?{live:ROWS_DATA.filter(r=>r.group==='live'),lens:ROWS_DATA.filter(r=>r.group==='lens'),dead:ROWS_DATA.filter(r=>r.group==='dead')}:ROWS_FALLBACK;
+const ROWS_FALLBACK={
+ live:[
+  {tab:1,name:"Lead Index",ch:"direction",rd:"+0.42σ",sb:"composite · May-26",chip:["USD+","pos"],hz:"6m",ev:"r 0.48 IS · 0.46 OOS · 65% hit",note:"Implied DXY YoY +3.8% by Nov-26."},
+  {tab:9,name:"PMI Differential",ch:"growth",rd:"+0.57",sb:"US − partners · adv 4m",chip:["USD+ mild","pos"],hz:"~4m",ev:"peak corr at 4m",note:"US mfg confidence above the partner basket."},
+  {tab:3,name:"Real Curve",ch:"rates",rd:"255bp",sb:"real 10s–3m · re-steepened",chip:["USD+","pos"],hz:"6–9m",ev:"r +0.34 at audited peak",note:"Implied ≈ +1.3% at ~8 months."},
+  {tab:12,name:"Forex Risk",ch:"positioning",rd:"7.0/100",sb:"low risk · loose liquidity",chip:["USD+ low conv.","pos"],hz:"12m",ev:"R² ≈ 0.12",note:"Implied trade-weighted $ +3.7% firmer."},
+  {tab:10,name:"PPP Overvaluation",ch:"long-run",rd:"+29.6%",sb:"real DXY vs CPI basket",chip:["USD− secular","neg"],hz:"10y",ev:"R² 0.52 · t −6.7",note:"Implied ≈ −3.7%/yr over the next decade."}
+ ],
+ lens:[
+  {tab:2,name:"Fair Value",ch:"valuation",rd:"+7.8% rich",sb:"+1.2σ · 87th pctile",chip:["RICH","rich"],hz:"spot",ev:"R² 0.32 · gap→fwd r 0.00",note:"Attribution, not timing — the gap does not predict."},
+  {tab:4,name:"Twin Deficit",ch:"flow",rd:"−8.8% GDP",sb:"4Q avg · pushed 7Q",chip:["USD− backdrop","neg"],hz:"7Q",ev:"external-financing channel",note:"Structurally wide; a headwind the cycle is out-running."},
+  {tab:11,name:"Hedging Pressure",ch:"flows",rd:"−0.52",sb:"SPX–DXY 60d corr",chip:["PRESSURE OFF","calm"],hz:"dial",ev:"2025 wave captured · base rate 48%",note:"Natural hedge firmly restored since Mar-26."}
+ ],
+ dead:[
+  {tab:6,name:"External Position",ch:"external",rd:"+0.53σ",sb:"Gourinchas–Rey nxa",chip:["DECAYED","dead"],hz:"—",ev:"era corr 0.70→0.22 · OOS 0.03",note:"Overridden by reserve-currency demand."},
+  {tab:7,name:"Treasury Premium",ch:"reserve demand",rd:"+5bp",sb:"matched-3m proxy · calm",chip:["NOT REPLICABLE","dead"],hz:"—",ev:"needs FX forwards · r −0.05 vs JKL",note:"Survives only as a crisis flight-to-bills gauge."},
+  {tab:8,name:"Real Money",ch:"liquidity",rd:"+13.4pp",sb:"Ward gap · record wide",chip:["NO LEAD","dead"],hz:"—",ev:"3rd spec tested · t 0.9 · sign flips",note:"Foreign side faintly leads — the smile, not the gap."},
+  {tab:5,name:"Fiscal Cycle",ch:"fiscal",rd:"−4.2%",sb:"surplus / debt",chip:["DEAD SINCE 2017","dead"],hz:"—",ev:"in-window t 1.9 (NIPA) · 2018+ inverts",note:"The fiscal impulse leads; the level does not."}
+ ]
+};
+function fill(id,rows,dim){
+ const tb=document.querySelector(id+" tbody");
+ tb.innerHTML=rows.map(r=>`<tr class="${dim?'dim':''}" data-tab="${r.tab}">
+  <td><span class="mname">${r.name}<span class="ch">${r.ch}</span></span></td>
+  <td><span class="rd">${r.rd}<span class="sb">${r.sb}</span></span></td>
+  <td><span class="chip ${r.chip[1]}">${r.chip[0]}</span></td>
+  <td class="hz">${r.hz}</td><td class="ev">${r.ev}</td>
+  <td class="note">${r.note}</td><td class="go">↗</td></tr>`).join("");
+}
+fill("#t-live",ROWS.live,false);
+fill("#t-lens",ROWS.lens,false);
+fill("#t-dead",ROWS.dead,true);
+document.querySelectorAll("tbody tr").forEach(tr=>{
+ tr.addEventListener("click",()=>{try{parent.postMessage({__goto:+tr.dataset.tab},"*");}catch(e){}});
+});
+// export the scorecard table as CSV (installed after the injected exporter defines its own)
+function tableCSV(){
+ const esc=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ const rows=[["group","model","channel","reading","context","stance","horizon","evidence","note"]];
+ [["live",ROWS.live],["lens",ROWS.lens],["audited",ROWS.dead]].forEach(([g,rs])=>{
+  rs.forEach(r=>rows.push([g,r.name,r.ch,r.rd,r.sb,r.chip[0],r.hz,r.ev,r.note]));
+ });
+ return rows.map(r=>r.map(esc).join(",")).join("\n");
+}
+window.addEventListener("load",()=>{setTimeout(()=>{window.__exportCSV=tableCSV;},1400);});
+</script>
+<script>
+(function(){
+ function report(){
+   var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+   parent.postMessage({__fh:h,id:window.frameElement?window.frameElement.id:null},"*");
+ }
+ window.addEventListener("load",function(){report();setTimeout(report,600);setTimeout(report,1600);});
+ window.addEventListener("resize",report);
+ if(window.ResizeObserver){new ResizeObserver(report).observe(document.documentElement);}
+})();
+</script>
+
+
+</body>
+</html>

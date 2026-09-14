@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US External Position &amp; the Dollar — Acheron Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--paper:#F7F1E6;--card:#FDFAF3;--ink:#221C14;--muted:#6E6350;--line:#E2D8C4;--orange:#D2622A;--teal:#0E756C;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1160px;margin:0 auto;padding:28px 22px 60px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--teal);text-transform:uppercase}
+h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.01em;margin:6px 0 4px}
+.sub{color:var(--muted);max-width:820px}
+.mast{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:18px}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:7px 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--card);white-space:nowrap}
+.pill b{color:var(--orange)}
+.asof{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;text-align:right}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin:20px 0 8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi .l{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;margin-top:5px}
+.kpi .d{font-size:12px;color:var(--muted);margin-top:3px}
+.pos{color:var(--teal)}.neg{color:var(--orange)}
+.banner{background:#F2E9D6;border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:8px;padding:11px 15px;margin:14px 0 4px;font-size:13px;color:#5A4632}
+.banner b{color:var(--ink)}
+section{margin:30px 0}
+h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:2px}
+.cap{font-size:12.5px;color:var(--muted);margin-bottom:12px;max-width:880px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.chartbox{position:relative;height:380px}
+.chartbox.short{height:250px}
+.chartbox.mid{height:300px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:11.5px;margin-bottom:8px;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:20px;height:0;border-top:3px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:880px){.grid2{grid-template-columns:1fr}}
+.comps{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.comp{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.comp h3{font-family:'Space Grotesk',sans-serif;font-size:14.5px;font-weight:700}
+.comp .meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);margin:2px 0 8px}
+.comp .now{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;float:right}
+.minibox{position:relative;height:110px}
+table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:12px}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--ink)}
+th:first-child,td:first-child{text-align:left}
+footer{border-top:2px solid var(--ink);margin-top:44px;padding-top:18px;font-size:12.5px;color:var(--muted)}
+footer h4{font-family:'Space Grotesk',sans-serif;color:var(--ink);font-size:13.5px;margin:14px 0 4px}
+footer p{max-width:900px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+  <div>
+    <div class="eyebrow">Acheron Insights · FX / External</div>
+    <h1>US External Position &amp; the Dollar</h1>
+    <div class="sub">The Gourinchas–Rey external-adjustment channel: a cyclical measure of the US net external position — net foreign assets plus net exports, detrended — that historically <i>led</i> the dollar, because external imbalances must eventually close through the exchange rate. The headline finding here is not a signal but a regime change: the channel was powerful into the 1990s and has decayed toward zero in the reserve-currency era.</div>
+  </div>
+  <div>
+    <div class="pill" id="pill"></div>
+    <div class="asof" id="asof"></div>
+  </div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+<div class="banner" id="banner"></div>
+
+<section>
+  <h2>External imbalance, mapped to the dollar</h2>
+  <div class="cap">The imbalance measure at quarter <i>t</i>, mapped through the full-sample regression to an implied 4-quarter DXY change and advanced four quarters so it aligns with what it is forecasting (orange), against the dollar's realised trailing 4-quarter change (ink). Note how the two track through the 1980s–90s and progressively decouple after ~2005. Gray bands are US recessions.</div>
+  <div class="panel">
+    <div class="legend">
+      <span><i class="sw" style="border-color:#221C14"></i>DXY, realised 4Q change</span>
+      <span><i class="sw" style="border-color:#D2622A"></i>Implied by external position, 4Q earlier</span>
+    </div>
+    <div class="chartbox"><canvas id="hero"></canvas></div>
+  </div>
+</section>
+
+<section>
+  <h2>The centrepiece: a fading lead</h2>
+  <div class="cap">Rolling 40-quarter correlation between the external-imbalance measure and the subsequent 4-quarter dollar move. Positive means the classical channel is working — a weak external position precedes depreciation. It ran near +0.8 in the 1980s and has collapsed to roughly zero over the past decade, even dipping negative. This is the "exorbitant privilege" signature: in the reserve-currency era the dollar has strengthened <i>despite</i> a deteriorating external position, because it trades on global safe-asset and reserve demand rather than trade adjustment.</div>
+  <div class="panel"><div class="chartbox mid"><canvas id="roll"></canvas></div></div>
+</section>
+
+<section class="grid2">
+  <div>
+    <h2>Relationship by era</h2>
+    <div class="cap">Correlation of the imbalance with the forward 4-quarter dollar move, by sub-period. Monotonic decay from a powerful +0.70 to a weak +0.22.</div>
+    <div class="panel"><div class="chartbox short"><canvas id="eras"></canvas></div></div>
+  </div>
+  <div>
+    <h2>Horizon profile (full sample)</h2>
+    <div class="cap">Correlation by forecast horizon. Over the whole sample the signal strengthens with horizon, peaking around 8–10 quarters — consistent with Gourinchas–Rey's "one quarter to two years." But this is the full-sample picture; see the decay above.</div>
+    <div class="panel"><div class="chartbox short"><canvas id="profile"></canvas></div></div>
+  </div>
+</section>
+
+<section class="grid2">
+  <div>
+    <h2>Signal map, coloured by era</h2>
+    <div class="cap">Each dot is one quarter: imbalance at <i>t</i> vs the dollar's move over the next four quarters. The early era (teal) carries the fit; recent points (orange) are a scatter cloud.</div>
+    <div class="panel"><div class="chartbox short"><canvas id="scat"></canvas></div></div>
+  </div>
+  <div>
+    <h2>The backdrop it fights</h2>
+    <div class="cap">The secular deterioration in the raw net position: NIIP has fallen from a small surplus to roughly −67% of GDP. The classical channel says this "should" weigh on the dollar; the safe-asset era has overridden it.</div>
+    <div class="panel"><div class="chartbox short"><canvas id="ctx"></canvas></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Components</h2>
+  <div class="cap">The two ingredients of the imbalance, each detrended and standardised so positive = stronger external position. The stock (net foreign assets) and the flow (net exports) each carry part of the signal; combined they beat either alone.</div>
+  <div class="comps" id="comps"></div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+<script>
+const NXA = {"quarters": ["1976Q1", "1976Q2", "1976Q3", "1976Q4", "1977Q1", "1977Q2", "1977Q3", "1977Q4", "1978Q1", "1978Q2", "1978Q3", "1978Q4", "1979Q1", "1979Q2", "1979Q3", "1979Q4", "1980Q1", "1980Q2", "1980Q3", "1980Q4", "1981Q1", "1981Q2", "1981Q3", "1981Q4", "1982Q1", "1982Q2", "1982Q3", "1982Q4", "1983Q1", "1983Q2", "1983Q3", "1983Q4", "1984Q1", "1984Q2", "1984Q3", "1984Q4", "1985Q1", "1985Q2", "1985Q3", "1985Q4", "1986Q1", "1986Q2", "1986Q3", "1986Q4", "1987Q1", "1987Q2", "1987Q3", "1987Q4", "1988Q1", "1988Q2", "1988Q3", "1988Q4", "1989Q1", "1989Q2", "1989Q3", "1989Q4", "1990Q1", "1990Q2", "1990Q3", "1990Q4", "1991Q1", "1991Q2", "1991Q3", "1991Q4", "1992Q1", "1992Q2", "1992Q3", "1992Q4", "1993Q1", "1993Q2", "1993Q3", "1993Q4", "1994Q1", "1994Q2", "1994Q3", "1994Q4", "1995Q1", "1995Q2", "1995Q3", "1995Q4", "1996Q1", "1996Q2", "1996Q3", "1996Q4", "1997Q1", "1997Q2", "1997Q3", "1997Q4", "1998Q1", "1998Q2", "1998Q3", "1998Q4", "1999Q1", "1999Q2", "1999Q3", "1999Q4", "2000Q1", "2000Q2", "2000Q3", "2000Q4", "2001Q1", "2001Q2", "2001Q3", "2001Q4", "2002Q1", "2002Q2", "2002Q3", "2002Q4", "2003Q1", "2003Q2", "2003Q3", "2003Q4", "2004Q1", "2004Q2", "2004Q3", "2004Q4", "2005Q1", "2005Q2", "2005Q3", "2005Q4", "2006Q1", "2006Q2", "2006Q3", "2006Q4", "2007Q1", "2007Q2", "2007Q3", "2007Q4", "2008Q1", "2008Q2", "2008Q3", "2008Q4", "2009Q1", "2009Q2", "2009Q3", "2009Q4", "2010Q1", "2010Q2", "2010Q3", "2010Q4", "2011Q1", "2011Q2", "2011Q3", "2011Q4", "2012Q1", "2012Q2", "2012Q3", "2012Q4", "2013Q1", "2013Q2", "2013Q3", "2013Q4", "2014Q1", "2014Q2", "2014Q3", "2014Q4", "2015Q1", "2015Q2", "2015Q3", "2015Q4", "2016Q1", "2016Q2", "2016Q3", "2016Q4", "2017Q1", "2017Q2", "2017Q3", "2017Q4", "2018Q1", "2018Q2", "2018Q3", "2018Q4", "2019Q1", "2019Q2", "2019Q3", "2019Q4", "2020Q1", "2020Q2", "2020Q3", "2020Q4", "2021Q1", "2021Q2", "2021Q3", "2021Q4", "2022Q1", "2022Q2", "2022Q3", "2022Q4", "2023Q1", "2023Q2", "2023Q3", "2023Q4", "2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4", "2026Q1", "2026Q2", "2026Q3", "2026Q4", "2027Q1"], "nxa": [0.18, -0.07, -0.23, -0.34, -0.94, -0.86, -0.75, -1.06, -1.32, -0.54, -0.48, -0.11, 0.1, 0.21, 0.42, 0.53, 0.38, 1.24, 2.05, 1.74, 1.34, 1.26, 1.3, 1.01, 1.04, 1.42, 0.77, 0.83, 1.04, 0.56, 0.14, 0.07, -0.61, -0.93, -1.01, -1.19, -0.8, -1.27, -1.27, -1.59, -1.34, -1.31, -1.42, -1.23, -1.35, -1.42, -1.35, -1.28, -0.84, -0.46, -0.28, -0.36, -0.21, 0.04, 0.29, 0.19, 0.08, 0.37, 0.25, 0.14, 0.62, 0.99, 1.02, 0.98, 0.94, 0.69, 0.54, 0.37, 0.61, 0.87, 1.16, 1.46, 1.47, 1.46, 1.49, 1.54, 1.46, 1.38, 1.79, 1.82, 1.66, 1.69, 1.53, 1.9, 1.47, 1.55, 1.24, 0.85, 0.62, 0.31, 0.19, 0.17, -0.0, -0.18, -0.26, -0.28, -0.95, -1.07, -1.51, -1.79, -2.01, -1.9, -2.28, -2.54, -2.55, -2.79, -2.84, -3.14, -3.13, -2.8, -2.43, -2.16, -2.3, -2.49, -2.54, -2.65, -2.11, -1.74, -1.57, -1.49, -0.76, -0.62, -1.18, -0.07, 0.38, 0.92, 1.53, 1.63, 0.58, 0.77, -1.46, -1.62, -0.07, 1.48, 2.06, 2.04, 1.76, 1.15, 1.95, 2.7, 2.38, 2.31, 0.56, 0.13, 0.18, -0.34, 0.47, 1.31, 0.93, 0.51, 1.6, 1.51, 1.16, 1.52, 0.96, -0.11, 0.22, 0.69, 0.06, 0.08, -0.03, -0.23, 0.37, 0.2, 0.65, 0.96, 1.61, 1.74, 1.83, 1.16, 0.26, 0.27, 0.12, -0.08, -0.42, 0.02, 1.02, -0.71, -0.56, -0.56, -0.57, -0.8, -0.76, -2.03, -2.14, -0.47, 0.15, 1.06, 1.55, 1.0, 1.47, 0.41, -0.4, -0.68, -1.51, -2.54, -2.33, -1.12, -0.62, -0.23, 0.53, null, null, null, null], "nfa_c": [-0.08, -0.11, -0.14, -0.17, -0.15, -0.14, -0.13, -0.11, -0.05, -0.04, -0.0, 0.03, 0.24, 0.44, 0.62, 0.81, 0.9, 1.03, 1.12, 1.16, 0.93, 0.79, 0.61, 0.49, 0.52, 0.53, 0.54, 0.56, 0.58, 0.58, 0.59, 0.6, 0.39, 0.2, 0.02, -0.14, -0.18, -0.22, -0.25, -0.28, -0.26, -0.23, -0.2, -0.17, -0.21, -0.25, -0.28, -0.31, -0.33, -0.34, -0.35, -0.36, -0.38, -0.4, -0.42, -0.43, -0.5, -0.57, -0.63, -0.7, -0.74, -0.78, -0.81, -0.84, -0.95, -1.05, -1.15, -1.24, -0.9, -0.57, -0.25, 0.08, 0.15, 0.23, 0.3, 0.37, 0.31, 0.24, 0.19, 0.13, 0.17, 0.22, 0.26, 0.3, 0.06, -0.16, -0.37, -0.58, -0.65, -0.71, -0.75, -0.79, -0.66, -0.53, -0.39, -0.24, -0.45, -0.61, -0.81, -0.99, -1.31, -1.6, -1.93, -2.23, -2.15, -2.07, -2.0, -1.94, -1.73, -1.52, -1.26, -1.03, -0.91, -0.78, -0.65, -0.5, -0.09, 0.28, 0.67, 1.04, 1.55, 1.65, 1.23, 1.7, 2.09, 2.61, 3.05, 3.1, 2.31, 2.48, 0.3, -0.78, -0.52, 0.63, 1.62, 1.86, 1.79, 1.33, 2.17, 2.69, 2.63, 2.59, 0.74, 0.47, 0.47, -0.29, 0.26, 1.04, 0.53, 0.09, 1.05, 0.67, 0.73, 1.01, 0.33, -0.54, -0.25, 0.1, -0.4, -0.45, -0.63, -0.96, -0.42, -0.36, 0.08, 0.46, 0.98, 1.19, 1.34, 0.5, -0.08, -0.01, -0.37, -0.49, -1.0, -0.88, 0.1, -1.31, -0.66, -0.4, -0.36, -0.54, -0.38, -1.62, -1.26, 0.13, 0.2, 1.06, 1.33, 0.77, 1.1, 0.09, -0.62, -0.7, -1.41, -2.46, -1.25, -1.19, -1.16, -0.69, 0.15, null, null, null, null], "nx_c": [0.26, 0.04, -0.09, -0.17, -0.79, -0.72, -0.62, -0.95, -1.27, -0.5, -0.48, -0.13, -0.15, -0.23, -0.2, -0.27, -0.51, 0.21, 0.93, 0.58, 0.41, 0.47, 0.69, 0.52, 0.51, 0.89, 0.23, 0.28, 0.46, -0.03, -0.45, -0.52, -1.0, -1.13, -1.04, -1.06, -0.62, -1.05, -1.02, -1.3, -1.08, -1.08, -1.22, -1.05, -1.14, -1.17, -1.06, -0.97, -0.51, -0.12, 0.07, -0.01, 0.17, 0.44, 0.7, 0.62, 0.58, 0.94, 0.88, 0.84, 1.36, 1.76, 1.82, 1.82, 1.89, 1.74, 1.69, 1.6, 1.51, 1.44, 1.41, 1.38, 1.32, 1.23, 1.19, 1.17, 1.16, 1.14, 1.6, 1.69, 1.49, 1.47, 1.27, 1.6, 1.41, 1.7, 1.61, 1.43, 1.27, 1.02, 0.94, 0.95, 0.66, 0.36, 0.13, -0.03, -0.5, -0.46, -0.7, -0.8, -0.7, -0.3, -0.35, -0.31, -0.41, -0.72, -0.83, -1.21, -1.39, -1.28, -1.17, -1.13, -1.39, -1.71, -1.89, -2.15, -2.01, -2.02, -2.24, -2.53, -2.31, -2.27, -2.41, -1.77, -1.71, -1.69, -1.52, -1.47, -1.73, -1.7, -1.76, -0.84, 0.45, 0.85, 0.44, 0.17, -0.03, -0.19, -0.22, 0.01, -0.25, -0.28, -0.18, -0.34, -0.29, -0.05, 0.21, 0.27, 0.4, 0.42, 0.55, 0.84, 0.43, 0.5, 0.63, 0.43, 0.47, 0.59, 0.45, 0.53, 0.6, 0.73, 0.79, 0.57, 0.58, 0.49, 0.63, 0.56, 0.49, 0.66, 0.35, 0.29, 0.49, 0.4, 0.57, 0.9, 0.92, 0.6, 0.1, -0.15, -0.21, -0.26, -0.38, -0.41, -0.88, -0.61, -0.06, -0.0, 0.22, 0.23, 0.38, 0.32, 0.22, 0.02, -0.1, -0.08, -1.08, 0.07, 0.54, 0.46, 0.38, null, null, null, null], "niip_gdp": [4.4, 4.3, 4.3, 4.2, 4.3, 4.4, 4.4, 4.6, 4.8, 4.9, 5.0, 5.2, 6.1, 7.0, 7.7, 8.5, 8.9, 9.5, 9.8, 9.9, 8.9, 8.3, 7.5, 6.9, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 6.9, 6.9, 5.9, 5.0, 4.2, 3.4, 3.1, 2.8, 2.6, 2.3, 2.3, 2.3, 2.3, 2.3, 2.1, 1.8, 1.5, 1.2, 1.0, 0.8, 0.6, 0.4, 0.1, -0.1, -0.3, -0.6, -1.1, -1.5, -2.0, -2.5, -2.9, -3.2, -3.5, -3.9, -4.6, -5.2, -5.9, -6.5, -5.3, -4.1, -2.9, -1.7, -1.7, -1.6, -1.5, -1.5, -2.0, -2.6, -3.1, -3.6, -3.7, -3.8, -3.9, -4.0, -5.3, -6.6, -7.8, -9.0, -9.6, -10.2, -10.7, -11.1, -10.9, -10.7, -10.4, -10.1, -11.4, -12.4, -13.6, -14.7, -16.5, -18.1, -19.9, -21.5, -21.5, -21.6, -21.7, -21.8, -21.3, -20.8, -20.1, -19.5, -19.4, -19.2, -19.1, -18.9, -17.5, -16.3, -15.1, -13.9, -12.2, -12.2, -14.5, -12.9, -11.6, -9.9, -8.5, -8.7, -12.6, -12.3, -22.2, -27.3, -26.7, -22.2, -18.5, -17.9, -18.8, -21.2, -18.1, -16.4, -17.2, -17.9, -26.4, -28.1, -28.7, -32.5, -30.6, -27.8, -30.6, -33.0, -29.5, -31.7, -32.0, -31.3, -34.9, -39.2, -38.5, -37.6, -40.4, -41.2, -42.6, -44.6, -42.9, -43.3, -42.0, -40.9, -39.3, -39.1, -39.1, -43.3, -46.5, -46.8, -49.0, -50.2, -53.0, -53.2, -49.7, -56.4, -54.3, -53.9, -54.4, -55.8, -55.9, -61.9, -61.0, -55.7, -56.1, -53.1, -52.7, -55.8, -55.2, -60.2, -64.0, -65.1, -68.9, -74.2, -69.7, -70.3, -70.9, -69.6, -66.7, null, null, null, null], "nx_gdp": [0.3, -0.0, -0.2, -0.3, -1.1, -1.0, -1.0, -1.4, -1.8, -1.0, -1.0, -0.7, -0.7, -0.9, -0.9, -1.0, -1.3, -0.5, 0.2, -0.2, -0.5, -0.4, -0.2, -0.4, -0.5, -0.1, -0.9, -0.9, -0.7, -1.3, -1.8, -1.9, -2.4, -2.6, -2.5, -2.6, -2.2, -2.7, -2.7, -3.0, -2.8, -2.8, -3.0, -2.9, -3.0, -3.1, -3.0, -2.9, -2.4, -2.1, -1.9, -2.0, -1.8, -1.6, -1.3, -1.4, -1.5, -1.2, -1.2, -1.3, -0.8, -0.4, -0.3, -0.4, -0.3, -0.5, -0.6, -0.7, -0.8, -0.9, -1.0, -1.0, -1.1, -1.2, -1.3, -1.4, -1.4, -1.4, -1.0, -0.9, -1.1, -1.2, -1.4, -1.1, -1.3, -1.0, -1.1, -1.3, -1.5, -1.8, -1.9, -1.9, -2.3, -2.6, -2.9, -3.0, -3.6, -3.5, -3.8, -3.9, -3.8, -3.4, -3.5, -3.5, -3.6, -3.9, -4.1, -4.5, -4.7, -4.6, -4.5, -4.4, -4.7, -5.1, -5.3, -5.6, -5.5, -5.5, -5.7, -6.0, -5.8, -5.8, -5.9, -5.3, -5.2, -5.2, -5.0, -5.0, -5.2, -5.2, -5.3, -4.3, -2.9, -2.5, -2.9, -3.2, -3.4, -3.6, -3.7, -3.4, -3.7, -3.7, -3.6, -3.8, -3.7, -3.5, -3.2, -3.1, -3.0, -3.0, -2.8, -2.5, -3.0, -2.9, -2.7, -3.0, -2.9, -2.8, -2.9, -2.8, -2.8, -2.6, -2.5, -2.8, -2.8, -2.8, -2.7, -2.8, -2.8, -2.6, -3.0, -3.0, -2.8, -2.9, -2.7, -2.3, -2.3, -2.6, -3.2, -3.4, -3.5, -3.5, -3.6, -3.7, -4.2, -3.9, -3.2, -3.2, -2.9, -2.9, -2.7, -2.8, -2.9, -3.1, -3.2, -3.1, -4.2, -3.0, -2.4, -2.5, -2.6, null, null, null, null], "dxy": [105.34, 106.64, 105.5, 104.56, 105.03, 103.84, 103.21, 96.44, 93.84, 93.53, 88.83, 86.5, 88.53, 87.85, 85.45, 85.82, 93.58, 85.2, 86.02, 90.39, 96.76, 107.71, 107.73, 104.69, 114.73, 119.04, 122.2, 117.36, 122.21, 124.94, 128.35, 131.79, 128.22, 136.26, 147.55, 151.47, 149.18, 146.12, 132.12, 123.46, 117.92, 111.61, 106.74, 103.58, 97.11, 98.13, 98.57, 85.42, 88.3, 95.41, 97.69, 92.5, 98.14, 102.02, 98.47, 93.21, 93.69, 91.15, 86.0, 83.07, 92.02, 96.06, 89.9, 83.52, 89.65, 83.72, 81.1, 92.36, 91.87, 93.63, 92.82, 96.84, 93.06, 89.62, 87.88, 88.73, 81.9, 81.58, 84.29, 84.76, 86.52, 87.82, 87.94, 88.18, 94.72, 95.67, 97.11, 99.65, 101.5, 101.17, 96.17, 94.17, 100.1, 102.85, 98.54, 101.87, 105.44, 106.84, 113.25, 109.56, 117.37, 119.43, 113.48, 116.75, 118.62, 106.11, 106.87, 101.85, 99.06, 94.73, 92.85, 86.92, 87.61, 88.8, 87.36, 80.85, 84.06, 89.11, 89.52, 91.17, 89.73, 85.22, 85.97, 83.72, 82.93, 81.92, 77.72, 76.7, 71.8, 72.46, 79.45, 81.31, 85.43, 80.13, 76.65, 77.86, 81.07, 86.02, 78.72, 79.03, 75.86, 74.3, 78.55, 80.17, 78.93, 81.65, 79.94, 79.77, 82.99, 83.17, 80.22, 80.04, 80.1, 79.78, 85.94, 90.27, 98.36, 95.49, 96.35, 98.63, 94.59, 96.14, 95.46, 102.39, 100.35, 95.66, 93.08, 92.12, 90.15, 94.63, 95.19, 96.17, 97.28, 96.13, 99.38, 96.39, 99.05, 97.39, 93.89, 89.94, 93.23, 92.44, 94.25, 95.67, 98.31, 104.69, 112.12, 103.52, 102.51, 102.91, 106.17, 101.33, 104.55, 105.87, 100.78, 108.49, 104.21, 96.88, 97.77, 98.28, 99.96, 101.19, 100.88, null, null], "implied": [null, null, null, null, 0.4, -0.3, -0.7, -1.0, -2.7, -2.5, -2.2, -3.0, -3.8, -1.6, -1.4, -0.4, 0.2, 0.5, 1.1, 1.4, 1.0, 3.4, 5.6, 4.7, 3.6, 3.4, 3.5, 2.7, 2.8, 3.8, 2.0, 2.2, 2.8, 1.4, 0.3, 0.1, -1.8, -2.7, -2.9, -3.4, -2.3, -3.6, -3.6, -4.5, -3.8, -3.8, -4.1, -3.5, -3.8, -4.0, -3.8, -3.7, -2.4, -1.4, -0.9, -1.1, -0.7, 0.0, 0.7, 0.4, 0.1, 0.9, 0.6, 0.3, 1.6, 2.6, 2.7, 2.6, 2.5, 1.8, 1.4, 0.9, 1.6, 2.3, 3.1, 3.9, 4.0, 4.0, 4.0, 4.2, 4.0, 3.7, 4.9, 5.0, 4.5, 4.6, 4.2, 5.2, 4.0, 4.2, 3.3, 2.2, 1.6, 0.8, 0.4, 0.4, -0.1, -0.6, -0.8, -0.9, -2.7, -3.1, -4.3, -5.1, -5.7, -5.4, -6.4, -7.2, -7.2, -7.9, -8.0, -8.8, -8.8, -7.9, -6.9, -6.1, -6.5, -7.0, -7.2, -7.5, -6.0, -4.9, -4.5, -4.2, -2.2, -1.8, -3.4, -0.3, 1.0, 2.5, 4.1, 4.4, 1.5, 2.0, -4.2, -4.6, -0.3, 4.0, 5.6, 5.6, 4.8, 3.1, 5.3, 7.4, 6.5, 6.3, 1.4, 0.3, 0.4, -1.0, 1.2, 3.5, 2.5, 1.3, 4.3, 4.1, 3.1, 4.1, 2.6, -0.4, 0.5, 1.8, 0.1, 0.1, -0.2, -0.7, 0.9, 0.5, 1.7, 2.6, 4.4, 4.7, 5.0, 3.1, 0.6, 0.7, 0.2, -0.3, -1.3, -0.0, 2.7, -2.1, -1.7, -1.6, -1.7, -2.3, -2.2, -5.8, -6.0, -1.4, 0.3, 2.8, 4.2, 2.7, 4.0, 1.0, -1.2, -2.0, -4.3, -7.2, -6.6, -3.2, -1.8, -0.7, 1.4], "fwd": [-0.3, -2.7, -2.2, -8.1, -11.3, -10.5, -15.0, -10.9, -5.8, -6.3, -3.9, -0.8, 5.5, -3.1, 0.7, 5.2, 3.3, 23.4, 22.5, 14.7, 17.0, 10.0, 12.6, 11.4, 6.3, 4.8, 4.9, 11.6, 4.8, 8.7, 13.9, 13.9, 15.1, 7.0, -11.0, -20.4, -23.5, -26.9, -21.3, -17.6, -19.4, -12.9, -8.0, -19.3, -9.5, -2.8, -0.9, 8.0, 10.6, 6.7, 0.8, 0.8, -4.6, -11.3, -13.5, -11.5, -1.8, 5.2, 4.4, 0.5, -2.6, -13.7, -10.3, 10.1, 2.4, 11.2, 13.5, 4.7, 1.3, -4.4, -5.5, -8.7, -12.8, -9.4, -4.2, -4.6, 5.5, 7.4, 4.2, 4.0, 9.1, 8.6, 9.9, 12.2, 6.9, 5.6, -1.0, -5.7, -1.4, 1.6, 2.4, 7.9, 5.2, 3.8, 13.9, 7.3, 10.7, 11.1, 0.2, 6.4, 1.1, -11.8, -6.0, -13.7, -18.0, -11.3, -14.1, -15.9, -12.3, -6.5, -6.1, -7.2, -4.1, 0.3, 2.4, 12.0, 6.5, -4.5, -4.0, -8.5, -7.9, -3.9, -10.1, -8.8, -14.4, -12.3, 2.2, 5.8, 17.4, 10.1, -3.6, -4.3, -5.2, 7.1, 2.7, 1.5, -6.6, -14.6, -0.2, 1.4, 4.0, 9.4, 1.8, -0.5, 5.0, 1.8, 0.3, 0.3, -3.5, -4.2, 6.9, 12.0, 20.5, 18.0, 11.4, 8.9, -3.9, 0.7, -0.9, 3.7, 5.9, -0.5, -2.5, -10.6, -10.7, -1.1, 2.2, 4.3, 7.6, 1.6, 4.3, 0.2, 1.8, 1.3, -5.7, -6.9, -6.1, -5.2, 0.4, 6.2, 5.3, 12.4, 17.4, 7.9, 4.2, -1.7, -5.5, -2.1, 2.0, 2.8, -5.2, 6.8, -0.3, -8.9, -3.0, -9.9, -4.2, 4.4, 3.1, null, null, null, null, null, null], "roll": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.81, 0.82, 0.83, 0.82, 0.83, 0.83, 0.81, 0.8, 0.77, 0.74, 0.73, 0.73, 0.73, 0.73, 0.73, 0.71, 0.69, 0.69, 0.68, 0.64, 0.62, 0.59, 0.52, 0.46, 0.45, 0.44, 0.45, 0.46, 0.45, 0.44, 0.41, 0.38, 0.34, 0.33, 0.33, 0.32, 0.28, 0.28, 0.25, 0.22, 0.18, 0.15, 0.13, 0.13, 0.08, 0.04, 0.02, 0.01, 0.08, 0.17, 0.22, 0.22, 0.2, 0.15, 0.07, -0.06, -0.15, -0.23, -0.28, -0.23, -0.24, -0.21, -0.06, 0.03, 0.15, 0.26, 0.32, 0.39, 0.44, 0.48, 0.5, 0.52, 0.56, 0.62, 0.66, 0.67, 0.64, 0.61, 0.61, 0.61, 0.61, 0.59, 0.57, 0.53, 0.46, 0.37, 0.27, 0.29, 0.35, 0.4, 0.43, 0.42, 0.4, 0.38, 0.4, 0.39, 0.38, 0.35, 0.31, 0.32, 0.36, 0.4, 0.43, 0.43, 0.41, 0.38, 0.36, 0.33, 0.27, 0.21, 0.19, 0.19, 0.19, 0.19, 0.23, 0.26, 0.35, 0.42, 0.41, 0.4, 0.36, 0.32, 0.31, 0.26, 0.25, 0.24, 0.26, 0.26, 0.25, 0.3, 0.31, 0.27, 0.24, 0.21, 0.2, 0.24, 0.27, 0.3, 0.38, 0.4, 0.4, 0.38, 0.26, 0.15, 0.08, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.03, -0.01, -0.08, -0.14, -0.15, -0.02, 0.03, 0.01, 0.0, null, null, null, null, null, null], "rec": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "profile": {"1": 0.155, "2": 0.241, "3": 0.34, "4": 0.396, "5": 0.43, "6": 0.467, "7": 0.499, "8": 0.517, "9": 0.533, "10": 0.547, "11": 0.541, "12": 0.54}, "eras": [{"lbl": "1976\u201390", "r": 0.7, "n": 60}, {"lbl": "1991\u201304", "r": 0.37, "n": 56}, {"lbl": "2005\u201326", "r": 0.22, "n": 83}], "scatter": [[0.18, -0.29, 0], [-0.07, -2.66, 0], [-0.23, -2.19, 0], [-0.34, -8.08, 0], [-0.94, -11.27, 0], [-0.86, -10.46, 0], [-0.75, -15.0, 0], [-1.06, -10.88, 0], [-1.32, -5.82, 0], [-0.54, -6.27, 0], [-0.48, -3.88, 0], [-0.11, -0.79, 0], [0.1, 5.55, 0], [0.21, -3.06, 0], [0.42, 0.66, 0], [0.53, 5.19, 0], [0.38, 3.34, 0], [1.24, 23.44, 0], [2.05, 22.5, 0], [1.74, 14.69, 0], [1.34, 17.03, 0], [1.26, 10.0, 0], [1.3, 12.6, 0], [1.01, 11.42, 0], [1.04, 6.32, 0], [1.42, 4.84, 0], [0.77, 4.91, 0], [0.83, 11.6, 0], [1.04, 4.8, 0], [0.56, 8.67, 0], [0.14, 13.94, 0], [0.07, 13.92, 0], [-0.61, 15.14, 0], [-0.93, 6.99, 0], [-1.01, -11.05, 0], [-1.19, -20.45, 0], [-0.8, -23.51, 0], [-1.27, -26.94, 0], [-1.27, -21.33, 0], [-1.59, -17.56, 0], [-1.34, -19.42, 0], [-1.31, -12.87, 0], [-1.42, -7.96, 0], [-1.23, -19.28, 0], [-1.35, -9.51, 0], [-1.42, -2.81, 0], [-1.35, -0.9, 0], [-1.28, 7.96, 0], [-0.84, 10.57, 0], [-0.46, 6.7, 0], [-0.28, 0.8, 0], [-0.36, 0.76, 0], [-0.21, -4.64, 0], [0.04, -11.27, 0], [0.29, -13.54, 0], [0.19, -11.52, 0], [0.08, -1.8, 0], [0.37, 5.25, 0], [0.25, 4.44, 0], [0.14, 0.54, 0], [0.62, -2.61, 1], [0.99, -13.75, 1], [1.02, -10.3, 1], [0.98, 10.06, 1], [0.94, 2.45, 1], [0.69, 11.19, 1], [0.54, 13.5, 1], [0.37, 4.74, 1], [0.61, 1.29, 1], [0.87, -4.38, 1], [1.16, -5.47, 1], [1.46, -8.75, 1], [1.47, -12.77, 1], [1.46, -9.4, 1], [1.49, -4.17, 1], [1.54, -4.58, 1], [1.46, 5.49, 1], [1.38, 7.37, 1], [1.79, 4.24, 1], [1.82, 3.96, 1], [1.66, 9.05, 1], [1.69, 8.56, 1], [1.53, 9.92, 1], [1.9, 12.23, 1], [1.47, 6.91, 1], [1.55, 5.59, 1], [1.24, -0.97, 1], [0.85, -5.66, 1], [0.62, -1.39, 1], [0.31, 1.65, 1], [0.19, 2.43, 1], [0.17, 7.86, 1], [-0.0, 5.2, 1], [-0.18, 3.81, 1], [-0.26, 13.91, 1], [-0.28, 7.28, 1], [-0.95, 10.72, 1], [-1.07, 11.14, 1], [-1.51, 0.2, 1], [-1.79, 6.36, 1], [-2.01, 1.06, 1], [-1.9, -11.83, 1], [-2.28, -6.0, 1], [-2.54, -13.65, 1], [-2.55, -18.02, 1], [-2.79, -11.34, 1], [-2.84, -14.06, 1], [-3.14, -15.85, 1], [-3.13, -12.28, 1], [-2.8, -6.46, 1], [-2.43, -6.09, 1], [-2.16, -7.24, 1], [-2.3, -4.14, 1], [-2.49, 0.35, 1], [-2.54, 2.44, 1], [-2.65, 12.01, 1], [-2.11, 6.53, 2], [-1.74, -4.46, 2], [-1.57, -4.05, 2], [-1.49, -8.52, 2], [-0.76, -7.88, 2], [-0.62, -3.95, 2], [-1.18, -10.09, 2], [-0.07, -8.76, 2], [0.38, -14.41, 2], [0.92, -12.27, 2], [1.53, 2.2, 2], [1.63, 5.84, 2], [0.58, 17.38, 2], [0.77, 10.06, 2], [-1.46, -3.59, 2], [-1.62, -4.34, 2], [-0.07, -5.24, 2], [1.48, 7.09, 2], [2.06, 2.66, 2], [2.04, 1.49, 2], [1.76, -6.64, 2], [1.15, -14.65, 2], [1.95, -0.22, 2], [2.7, 1.43, 2], [2.38, 3.97, 2], [2.31, 9.43, 2], [0.56, 1.75, 2], [0.13, -0.5, 2], [0.18, 5.02, 2], [-0.34, 1.84, 2], [0.47, 0.35, 2], [1.31, 0.34, 2], [0.93, -3.54, 2], [0.51, -4.16, 2], [1.6, 6.89, 2], [1.51, 12.03, 2], [1.16, 20.54, 2], [1.52, 17.97, 2], [0.96, 11.43, 2], [-0.11, 8.86, 2], [0.22, -3.91, 2], [0.69, 0.68, 2], [0.06, -0.93, 2], [0.08, 3.74, 2], [-0.03, 5.91, 2], [-0.23, -0.5, 2], [0.37, -2.52, 2], [0.2, -10.57, 2], [0.65, -10.72, 2], [0.96, -1.08, 2], [1.61, 2.24, 2], [1.74, 4.3, 2], [1.83, 7.61, 2], [1.16, 1.57, 2], [0.26, 4.31, 2], [0.27, 0.23, 2], [0.12, 1.8, 2], [-0.08, 1.3, 2], [-0.42, -5.68, 2], [0.02, -6.93, 2], [1.02, -6.06, 2], [-0.71, -5.22, 2], [-0.56, 0.38, 2], [-0.56, 6.18, 2], [-0.57, 5.31, 2], [-0.8, 12.44, 2], [-0.76, 17.36, 2], [-2.03, 7.89, 2], [-2.14, 4.18, 2], [-0.47, -1.71, 2], [0.15, -5.45, 2], [1.06, -2.14, 2], [1.55, 1.97, 2], [1.0, 2.84, 2], [1.47, -5.21, 2], [0.41, 6.83, 2], [-0.4, -0.33, 2], [-0.68, -8.87, 2], [-1.51, -3.03, 2], [-2.54, -9.88, 2], [-2.33, -4.16, 2], [-1.12, 4.35, 2], [-0.62, 3.13, 2]], "stats": {"K": 4, "a": -0.1, "b": 2.78, "r_is": 0.4, "R2": 0.157, "t_nw": 3.6, "n_is": 199, "r_oos": 0.03, "hit": 0.54, "n_oos": 123, "cur_nxa": 0.53, "cur_q": "2026Q1", "pct": 62, "roll_now": 0.0, "implied_now": 1.4, "target_q": "2027Q1", "nfa_now": 0.15, "nx_now": 0.38, "niip_gdp_now": -66.7, "nx_gdp_now": -2.6, "era_early": 0.7, "era_late": 0.22, "dxy_last": 100.88, "dxy_last_q": "2026Q3"}};
+const C={ink:"#221C14",muted:"#6E6350",line:"#E2D8C4",orange:"#D2622A",teal:"#0E756C",ochre:"#A67A22",plum:"#7A4A66",slate:"#4E6577",band:"rgba(34,28,20,0.07)"};
+const Q=NXA.quarters,S=NXA.stats;
+Chart.defaults.font.family="'IBM Plex Mono',monospace";
+Chart.defaults.font.size=10.5;Chart.defaults.color=C.muted;
+const fmtQ=s=>{const[y,q]=s.split("Q");return"Q"+q+"'"+y.slice(2)};
+const lastDxyIdx=(()=>{let i=NXA.dxy.length-1;while(i>=0&&NXA.dxy[i]===null)i--;return i;})();
+
+/* masthead */
+document.getElementById("pill").innerHTML=`EXTERNAL LEAD: <b>DECAYED</b> · STRUCTURAL LENS`;
+document.getElementById("asof").textContent=`external position through ${fmtQ(S.cur_q)} · DXY ${S.dxy_last} (${fmtQ(S.dxy_last_q)})`;
+const K=[
+ ["External imbalance now",(S.cur_nxa>0?"+":"")+S.cur_nxa+"σ",`${S.pct}th pctile · mildly firm vs trend`,S.cur_nxa>=0?"pos":"neg"],
+ ["Historical fit · 4Q","r = "+S.r_is,`full sample (n=${S.n_is}) · t=${S.t_nw} · R²=${S.R2}`,""],
+ ["Regime decay","0.70 → 0.22",`corr 1976–90 vs 2005–26 · now ≈ ${S.roll_now}`,"neg"],
+ ["Out-of-sample","r = "+S.r_oos,`expanding real-time · ${Math.round(S.hit*100)}% hit · no live skill`,"neg"]];
+document.getElementById("kpis").innerHTML=K.map(x=>`<div class="kpi"><div class="l">${x[0]}</div><div class="v ${x[3]}">${x[1]}</div><div class="d">${x[2]}</div></div>`).join("");
+document.getElementById("banner").innerHTML=`<b>Read this as structure, not timing.</b> The in-sample relationship is real and strong (r=${S.r_is} at four quarters, t=${S.t_nw}), but it does not survive real-time reconstruction (out-of-sample r=${S.r_oos}), and the rolling correlation has decayed to about ${S.roll_now}. The current reading is mildly firm at ${(S.cur_nxa>0?"+":"")+S.cur_nxa}σ; the historical map would imply roughly ${(S.implied_now>0?"+":"")+S.implied_now}% for DXY by ${fmtQ(S.target_q)}, but that number carries no out-of-sample weight and is shown only for context.`;
+
+/* recession + divider plugin */
+function bandsPlugin(recArr,lastIdx,zero){return {id:"b"+Math.random(),beforeDatasetsDraw(ch){const{ctx,chartArea:a,scales:{x,y}}=ch;if(!a)return;
+ ctx.save();ctx.fillStyle=C.band;let s=null;
+ for(let i=0;i<recArr.length;i++){const r=recArr[i]===1;if(r&&s===null)s=i;if((!r||i===recArr.length-1)&&s!==null){const e=r?i:i-1;ctx.fillRect(x.getPixelForValue(s),a.top,Math.max(1,x.getPixelForValue(e)-x.getPixelForValue(s)),a.bottom-a.top);s=null;}}
+ if(zero){const zy=y.getPixelForValue(0);ctx.strokeStyle=C.line;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(a.left,zy);ctx.lineTo(a.right,zy);ctx.stroke();}
+ if(lastIdx!=null){const lx=x.getPixelForValue(lastIdx);ctx.strokeStyle=C.muted;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(lx,a.top);ctx.lineTo(lx,a.bottom);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=C.muted;ctx.font="10px 'IBM Plex Mono',monospace";const left=lx>a.left+(a.right-a.left)*.55;ctx.textAlign=left?"right":"left";ctx.fillText("last print",lx+(left?-6:6),a.top+11);}
+ ctx.restore();}};}
+const qTicks=v=>{const s=Q[v];return s&&s.endsWith("Q1")&&(+s.slice(0,4))%5===0?s.slice(0,4):null};
+
+/* hero: realised trailing-4Q DXY change (from levels) vs implied */
+const realised=Q.map((q,i)=>{const d=NXA.dxy[i],d4=NXA.dxy[i-4];return(d!=null&&d4!=null)?+(100*(Math.log(d)-Math.log(d4))).toFixed(1):null;});
+new Chart(document.getElementById("hero"),{type:"line",
+ data:{labels:Q,datasets:[
+  {label:"DXY realised 4Q change %",data:realised,borderColor:C.ink,borderWidth:2,pointRadius:0,tension:.2},
+  {label:"Implied by external position (4Q lead)",data:NXA.implied,borderColor:C.orange,borderWidth:2.2,pointRadius:0,tension:.2,
+   segment:{borderDash:c=>c.p1DataIndex>lastDxyIdx?[6,5]:undefined}}]},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+  plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>fmtQ(Q[i[0].dataIndex]),label:i=>(i.datasetIndex===0?"realised ":"implied ")+(i.raw==null?"—":(i.raw>0?"+":"")+i.raw+"%")}}},
+  scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:false,callback:qTicks}},y:{title:{display:true,text:"% 4Q change"},grid:{color:C.line}}}},
+ plugins:[bandsPlugin(NXA.rec,lastDxyIdx,true)]});
+
+/* roll: rolling correlation, colored by sign */
+const rollColors=NXA.roll.map(v=>v==null?C.muted:(v>=0.3?C.teal:(v<=0.05?C.orange:C.slate)));
+new Chart(document.getElementById("roll"),{type:"line",
+ data:{labels:Q,datasets:[{data:NXA.roll,borderColor:C.slate,borderWidth:2,pointRadius:0,tension:.25,
+   segment:{borderColor:ctx=>{const v=NXA.roll[ctx.p1DataIndex];return v==null?C.muted:(v>=0.35?C.teal:(v<=0.1?C.orange:C.slate));}}}]},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>fmtQ(Q[i[0].dataIndex]),label:i=>i.raw==null?"—":"40Q corr "+(i.raw>0?"+":"")+i.raw}}},
+  scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:false,callback:qTicks}},y:{grid:{color:C.line},title:{display:true,text:"rolling 40Q corr"},min:-0.4,max:0.9}}},
+ plugins:[{id:"rzero",beforeDatasetsDraw(ch){const{ctx,chartArea:a,scales:{y}}=ch;const zy=y.getPixelForValue(0);ctx.save();ctx.strokeStyle=C.ink;ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(a.left,zy);ctx.lineTo(a.right,zy);ctx.stroke();ctx.setLineDash([]);ctx.restore();}}]});
+
+/* eras bar */
+new Chart(document.getElementById("eras"),{type:"bar",
+ data:{labels:NXA.eras.map(e=>e.lbl),datasets:[{data:NXA.eras.map(e=>e.r),backgroundColor:[C.teal,C.ochre,C.orange],borderRadius:3}]},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>"r = "+(i.raw>0?"+":"")+i.raw+" (n="+NXA.eras[i.dataIndex].n+")"}}},
+  scales:{x:{grid:{display:false}},y:{min:0,max:0.8,grid:{color:C.line},title:{display:true,text:"corr with fwd 4Q DXY"}}}}});
+
+/* profile bar */
+const pk=Object.keys(NXA.profile);
+new Chart(document.getElementById("profile"),{type:"bar",
+ data:{labels:pk,datasets:[{data:pk.map(k=>NXA.profile[k]),backgroundColor:pk.map(k=>+k===S.K?C.orange:C.teal),borderRadius:3}]},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>"horizon "+i[0].label+"Q",label:i=>"r = "+(i.raw>0?"+":"")+i.raw}}},
+  scales:{x:{grid:{display:false},title:{display:true,text:"horizon k (quarters)"}},y:{min:0,max:0.6,grid:{color:C.line},title:{display:true,text:"corr (full sample)"}}}}});
+
+/* scatter colored by era */
+const eraCol=[C.teal,C.ochre,C.orange];
+const eraLbl=["1976–90","1991–04","2005–26"];
+new Chart(document.getElementById("scat"),{type:"scatter",
+ data:{datasets:[0,1,2].map(e=>({label:eraLbl[e],data:NXA.scatter.filter(p=>p[2]===e).map(p=>({x:p[0],y:p[1]})),backgroundColor:eraCol[e],pointRadius:2.5}))
+  .concat([{type:"line",data:[{x:-2.5,y:S.a+S.b*-2.5},{x:2.5,y:S.a+S.b*2.5}],borderColor:C.ink,borderWidth:1.5,pointRadius:0,borderDash:[5,4]}])},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,
+  plugins:{legend:{display:true,labels:{boxWidth:8,font:{size:10},filter:it=>it.text!==undefined&&it.datasetIndex<3}},tooltip:{enabled:false}},
+  scales:{x:{title:{display:true,text:"external imbalance at t (σ)"},grid:{color:C.line},min:-2.5,max:2.5},y:{title:{display:true,text:"DXY 4Q change (%)"},grid:{color:C.line}}}}});
+
+/* context: NIIP/GDP + NX/GDP */
+new Chart(document.getElementById("ctx"),{type:"line",
+ data:{labels:Q,datasets:[
+  {label:"NIIP/GDP",data:NXA.niip_gdp,borderColor:C.plum,borderWidth:1.8,pointRadius:0,tension:.2,yAxisID:"y"},
+  {label:"Net exports/GDP",data:NXA.nx_gdp,borderColor:C.ochre,borderWidth:1.8,pointRadius:0,tension:.2,yAxisID:"y2"}]},
+ options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+  plugins:{legend:{display:true,labels:{boxWidth:8,font:{size:10}}},tooltip:{callbacks:{title:i=>fmtQ(Q[i[0].dataIndex])}}},
+  scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:false,callback:qTicks}},
+   y:{position:"left",grid:{color:C.line},title:{display:true,text:"NIIP/GDP %"}},
+   y2:{position:"right",grid:{display:false},title:{display:true,text:"NX/GDP %"}}}}});
+
+/* components */
+const CM=[["nfa_c","Net foreign assets (detrended)","NIIP/GDP, deviation from its secular trend. The stock side of the external position.",C.plum],
+ ["nx_c","Net exports (detrended)","Trailing-4Q net exports/GDP, deviation from trend. The flow side.",C.ochre]];
+const box=document.getElementById("comps");
+CM.forEach(([key,name,desc,col],i)=>{
+ const nowv=key==="nfa_c"?S.nfa_now:S.nx_now;
+ const el=document.createElement("div");el.className="comp";
+ el.innerHTML=`<span class="now" style="color:${col}">${(nowv>0?"+":"")+nowv.toFixed(2)}σ</span><h3>${name}</h3><div class="meta">${desc}</div><div class="minibox"><canvas id="cc${i}"></canvas></div>`;
+ box.appendChild(el);
+ new Chart(el.querySelector("canvas"),{type:"line",data:{labels:Q,datasets:[{data:NXA[key],borderColor:col,borderWidth:1.6,pointRadius:0,tension:.25}]},
+  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:it=>fmtQ(Q[it[0].dataIndex]),label:it=>it.raw==null?"—":(it.raw>0?"+":"")+it.raw+"σ"}}},
+   scales:{x:{display:false},y:{grid:{color:C.line},ticks:{maxTicksLimit:4},suggestedMin:-2.5,suggestedMax:2.5}}},
+  plugins:[{id:"z0",beforeDatasetsDraw(ch){const{ctx,chartArea:a,scales:{y}}=ch;const zy=y.getPixelForValue(0);ctx.save();ctx.strokeStyle=C.line;ctx.beginPath();ctx.moveTo(a.left,zy);ctx.lineTo(a.right,zy);ctx.stroke();ctx.restore();}}]});
+});
+
+/* footer */
+document.getElementById("foot").innerHTML=`
+<h4>Construction</h4>
+<p>The external-imbalance measure is a standardised, detrended combination of two ratios: the US net international investment position over GDP (the stock), and trailing four-quarter net exports over GDP (the flow). Each is detrended against a quadratic time trend over the full sample and standardised; the two z-scores are summed so that a higher reading means a stronger external position. Mapped to the dollar via OLS of the imbalance on the forward four-quarter log change in DXY, 1976–2026 (n=${S.n_is}), Newey–West (4-lag) errors, t=${S.t_nw}.</p>
+<h4>The honest caveats — read these</h4>
+<p><b>This is a simplified reconstruction.</b> Gourinchas–Rey build nxa from the full log-linearised external budget constraint using gross foreign assets, gross liabilities, exports and imports with time-varying portfolio weights, and detrend via a cointegrating vector. This dashboard uses the net position plus net exports with a quadratic time-trend detrend — cruder, and more exposed to the instability of detrending a strongly trending series.</p>
+<p><b>It does not survive out of sample.</b> The full-sample in-sample fit (r=${S.r_is}) is partly an artefact of that full-sample detrend. Re-estimating the trend, standardisation and mapping in real time on an expanding window gives out-of-sample r=${S.r_oos} and a ${Math.round(S.hit*100)}% directional hit — no usable live skill. Every causal detrend tested (trailing means, EWMA, differencing) produced zero-to-negative out-of-sample correlation.</p>
+<p><b>The lead has genuinely decayed.</b> The relationship is not merely hard to trade in real time — it has weakened structurally. Correlation with the forward four-quarter dollar move fell from +0.70 in 1976–90 to +0.37 in 1991–04 to +0.22 in 2005–26, with the rolling window now near zero. This is consistent with the "exorbitant privilege" literature: the dollar increasingly trades on foreign demand for US safe assets (the Treasury convenience yield) rather than on trade-driven external adjustment, so a deteriorating net position no longer forces depreciation.</p>
+<h4>How to use it</h4>
+<p>As a structural external-vulnerability gauge and a piece of context for the other models — not as a timing input. It pairs naturally with a Treasury-basis / convenience-yield model, which captures the safe-asset demand that has supplanted this channel. Target is DXY for consistency with the rest of the monitor; Gourinchas–Rey used a broad trade- and financial-weighted dollar, against which the original magnitudes (≈4% per 1σ at one quarter) are larger than shown here. NIIP is BEA (annual 1976–2005 interpolated to quarterly, actual quarterly 2006+); net exports and GDP are BEA/FRED; recessions NBER.</p>
+<p style="margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px">ACHERON INSIGHTS · US EXTERNAL POSITION &amp; THE DOLLAR · BUILD JUL-2026</p>`;
+</script>
+<script>
+(function(){
+ function report(){
+   var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+   parent.postMessage({__fh:h,id:window.frameElement?window.frameElement.id:null},"*");
+ }
+ window.addEventListener("load",function(){report();setTimeout(report,600);setTimeout(report,1600);});
+ window.addEventListener("resize",report);
+ if(window.ResizeObserver){new ResizeObserver(report).observe(document.documentElement);}
+})();
+</script>
+
+
+</body>
+</html>

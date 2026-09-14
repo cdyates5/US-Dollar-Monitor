@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>US-minus-Global Manufacturing Momentum vs. the Dollar — Acheron Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#F7F1E6; --card:#FDFAF3; --ink:#221C14; --muted:#6B5F4E;
+    --line:#E4DAC6; --orange:#D2622A; --teal:#0E756C; --teal-soft:#0E756C22;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 26px 60px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--orange);font-weight:600;margin:0 0 8px}
+  h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:26px;line-height:1.18;margin:0 0 8px}
+  .sub{color:var(--muted);font-size:14.5px;line-height:1.5;max-width:80ch;margin:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 1px 0 #fff inset,0 6px 22px -18px #4a3f2b;margin-top:22px}
+  .card.pad{padding:20px 22px}
+  .chart-head{display:flex;justify-content:space-between;align-items:flex-start;
+    gap:14px;padding:18px 22px 4px;flex-wrap:wrap}
+  .chart-title{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:16px;margin:0}
+  .chart-note{color:var(--muted);font-size:12px;margin:3px 0 0}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink)}
+  .legend span{display:inline-flex;align-items:center;gap:7px;font-weight:500}
+  .sw{width:22px;height:3px;border-radius:2px;display:inline-block}
+  .chart-box{position:relative;height:460px;padding:6px 12px 16px}
+  @media(max-width:640px){.chart-box{height:380px}}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    border-top:1px solid var(--line)}
+  .stat{padding:16px 18px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0}
+  .stat .k{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .stat .v{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:21px;margin:0;line-height:1}
+  .stat .d{font-size:11.5px;color:var(--muted);margin:6px 0 0;line-height:1.35}
+  .pos{color:var(--teal)} .neg{color:var(--orange)}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}
+    .stat:nth-child(2n){border-right:0}}
+  .banner{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;
+    padding:16px 22px;border-top:1px solid var(--line);background:var(--teal-soft)}
+  .banner .lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--teal);font-weight:600}
+  .banner .msg{font-size:14px;font-weight:500}
+  h2.sec{font-family:"Space Grotesk",sans-serif;font-size:15px;margin:0 0 10px}
+  .method{color:var(--muted);font-size:12.6px;line-height:1.62}
+  .method b{color:var(--ink);font-weight:600}
+  .method ul{margin:8px 0 0;padding-left:18px} .method li{margin:5px 0}
+  .foot{margin-top:26px;color:var(--muted);font-size:11.5px;line-height:1.55;
+    border-top:1px solid var(--line);padding-top:16px}
+  code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+    background:#0e756c14;padding:1px 5px;border-radius:4px;color:#0b5f57}
+  a{color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Acheron Insights · Systematic Macro · FX</p>
+  <h1>US-minus-Global Manufacturing Momentum &amp; the US Dollar</h1>
+  <p class="sub">Relative manufacturing-survey momentum between the US and its major trading partners
+  tends to <b>lead the US dollar</b>. When US factories out-accelerate China, the euro area and Japan,
+  the dollar has historically firmed several months later. The differential is advanced
+  <span id="advTxt"></span> months to line it up against DXY year-on-year change &mdash; a reconstruction of
+  the BCA Research / Clocktower chart family.</p>
+
+  <div class="card">
+    <div class="chart-head">
+      <div>
+        <p class="chart-title">Manufacturing confidence differential (advanced) vs. DXY, YoY</p>
+        <p class="chart-note" id="chartNote"></p>
+      </div>
+      <div class="legend">
+        <span><i class="sw" style="background:#0E756C"></i>US &minus; partners mfg confidence · adv <span id="advL"></span>m (LHS)</span>
+        <span><i class="sw" style="background:#221C14"></i>US Dollar Index · YoY % (RHS)</span>
+      </div>
+    </div>
+    <div class="chart-box"><canvas id="chart"></canvas></div>
+
+    <div class="banner">
+      <span class="lab">Current read</span>
+      <span class="msg" id="bannerMsg"></span>
+    </div>
+
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="card pad">
+    <h2 class="sec">Method &amp; data provenance</h2>
+    <div class="method" id="method"></div>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+const D = {"generated":"2026-07-09 18:05 UTC","labels":["2005-01","2005-02","2005-03","2005-04","2005-05","2005-06","2005-07","2005-08","2005-09","2005-10","2005-11","2005-12","2006-01","2006-02","2006-03","2006-04","2006-05","2006-06","2006-07","2006-08","2006-09","2006-10","2006-11","2006-12","2007-01","2007-02","2007-03","2007-04","2007-05","2007-06","2007-07","2007-08","2007-09","2007-10","2007-11","2007-12","2008-01","2008-02","2008-03","2008-04","2008-05","2008-06","2008-07","2008-08","2008-09","2008-10","2008-11","2008-12","2009-01","2009-02","2009-03","2009-04","2009-05","2009-06","2009-07","2009-08","2009-09","2009-10","2009-11","2009-12","2010-01","2010-02","2010-03","2010-04","2010-05","2010-06","2010-07","2010-08","2010-09","2010-10","2010-11","2010-12","2011-01","2011-02","2011-03","2011-04","2011-05","2011-06","2011-07","2011-08","2011-09","2011-10","2011-11","2011-12","2012-01","2012-02","2012-03","2012-04","2012-05","2012-06","2012-07","2012-08","2012-09","2012-10","2012-11","2012-12","2013-01","2013-02","2013-03","2013-04","2013-05","2013-06","2013-07","2013-08","2013-09","2013-10","2013-11","2013-12","2014-01","2014-02","2014-03","2014-04","2014-05","2014-06","2014-07","2014-08","2014-09","2014-10","2014-11","2014-12","2015-01","2015-02","2015-03","2015-04","2015-05","2015-06","2015-07","2015-08","2015-09","2015-10","2015-11","2015-12","2016-01","2016-02","2016-03","2016-04","2016-05","2016-06","2016-07","2016-08","2016-09","2016-10","2016-11","2016-12","2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12","2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12","2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2020-01","2020-02","2020-03","2020-04","2020-05","2020-06","2020-07","2020-08","2020-09","2020-10","2020-11","2020-12","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09"],"diff":[-0.0038,-0.2718,-0.5119,-0.6595,-0.6591,-0.5714,-0.5663,-0.7442,-1.0807,-1.2909,-1.1585,-0.6743,-0.1454,0.0868,0.0139,-0.185,-0.3342,-0.4365,-0.5211,-0.6876,-1.0465,-1.5438,-1.9054,-1.9637,-1.8124,-1.7794,-2.0392,-2.4619,-2.8377,-2.9779,-2.9917,-2.9351,-2.9882,-3.0827,-3.0596,-2.7896,-2.4314,-2.2662,-2.3462,-2.5096,-2.6729,-2.7499,-2.7689,-2.8471,-3.1002,-3.3223,-3.0434,-2.1744,-1.0702,-0.2652,0.1257,0.4593,0.9759,1.4546,1.4319,0.8185,0.0088,-0.5903,-0.7692,-0.5736,-0.2086,0.1094,0.2535,0.2053,0.0397,-0.0774,0.014,0.3062,0.5642,0.5977,0.4623,0.3422,0.2767,0.1489,-0.1099,-0.4102,-0.5845,-0.5139,-0.2524,0.0428,0.2009,0.2034,0.1143,0.0876,0.0874,0.1126,0.1242,0.1968,0.3478,0.4923,0.5485,0.4573,0.2773,0.1491,0.1838,0.3346,0.5066,0.6387,0.7306,0.7255,0.6069,0.5151,0.5724,0.7297,0.7922,0.6866,0.525,0.4888,0.5819,0.6977,0.7234,0.6572,0.5622,0.4762,0.4074,0.4057,0.4636,0.5591,0.6068,0.6085,0.6117,0.6891,0.817,0.9736,1.0668,1.06,0.9249,0.6909,0.4318,0.2214,0.1177,0.1021,0.094,0.0272,-0.1063,-0.2675,-0.42,-0.5139,-0.504,-0.384,-0.2199,-0.0871,0.0031,0.0776,0.0935,-0.0139,-0.194,-0.3543,-0.3917,-0.3089,-0.1343,0.0373,0.1058,0.0501,-0.0525,-0.1043,-0.0814,-0.0004,0.0684,0.0923,0.0686,0.0817,0.182,0.3435,0.4101,0.3467,0.2333,0.2265,0.3468,0.5415,0.7095,0.8207,0.8568,0.836,0.8169,0.7678,0.7032,0.5958,0.5027,0.4403,0.3677,0.2262,0.0286,-0.1478,-0.2305,-0.0982,0.3874,1.1576,1.4967,1.3186,0.8395,0.7778,0.982,1.2128,1.2992,1.3139,1.2971,1.3225,1.3827,1.4838,1.5214,1.4322,1.2334,0.9928,0.7991,0.7007,0.7227,0.7904,0.7823,0.6415,0.4654,0.3902,0.4818,0.6392,0.6654,0.4953,0.265,0.114,0.0566,0.038,0.0301,-0.0545,-0.3833,-0.8835,-1.2703,-1.2621,-0.9441,-0.5716,-0.3368,-0.2324,-0.2056,-0.2118,-0.2088,-0.1515,-0.0478,0.0256,0.0255,-0.0178,-0.0283,-0.009,-0.0034,-0.0318,-0.0867,-0.1302,-0.1077,0.0352,0.2463,0.3666,0.3392,0.2458,0.1826,0.1693,0.1502,0.1368,0.1174,0.0967,0.0695,0.0805,0.2141,0.4154,0.5678],"dxy":[-4.1284,-5.4976,-4.0521,-6.6866,-1.3378,0.3491,-0.6781,-1.5291,2.4725,6.077,11.9164,12.7644,6.4115,9.211,6.7452,1.9898,-3.464,-4.3654,-4.5327,-2.8888,-3.9656,-5.2737,-9.4463,-8.1715,-4.8898,-7.2578,-7.5783,-5.4117,-2.8565,-3.8723,-5.3107,-5.0088,-9.5964,-10.361,-8.1645,-8.3851,-11.1453,-11.7985,-13.421,-10.9761,-11.4459,-11.5479,-9.3351,-4.2208,2.2259,11.9639,13.6179,6.0104,14.3921,19.4004,18.9833,16.6874,10.3595,10.5851,6.9917,1.0209,-3.5242,-10.8957,-13.4535,-4.243,-7.6047,-8.6922,-5.1036,-3.2384,7.6588,7.3506,4.0715,6.4347,2.7006,1.2713,8.4402,1.5027,-2.1646,-4.3181,-6.4265,-10.9198,-13.8007,-13.6247,-9.3696,-10.9014,-0.216,-1.4236,-3.4606,1.4425,1.981,2.393,4.0469,8.0351,11.254,9.8923,11.8268,9.6048,1.7696,4.9232,2.2452,-0.4989,-0.0883,4.128,5.1438,3.7314,0.4094,1.8616,-1.44,1.0338,0.3503,0.3503,0.6613,0.3385,2.6007,-2.6836,-3.4823,-2.7407,-3.61,-4.076,0.0123,0.804,7.1304,8.3292,9.5191,12.7811,16.6482,19.3908,22.7965,19.0087,20.5798,19.6917,19.5311,15.9517,12.1131,11.5907,13.3658,9.2611,5.0738,3.1076,-3.8329,-1.6068,-1.0525,0.6807,-1.8897,0.073,-0.9237,1.5472,1.3277,3.8122,-0.1004,2.963,6.0894,6.4138,1.0741,-0.4993,-2.7949,-3.4889,-2.4932,-3.9614,-8.3645,-10.0303,-10.4311,-10.3936,-10.3438,-7.2792,-3.0231,-1.0767,1.7553,2.6654,2.2669,2.7287,4.5801,4.3964,7.2366,6.1252,8.1249,6.1411,4.0004,1.5851,4.265,3.9731,4.4017,0.2265,1.0281,0.2288,1.8937,2.0487,1.8195,1.5798,0.6036,1.3107,-5.1056,-6.854,-5.5242,-3.4001,-6.5127,-6.6916,-6.9925,-7.3372,-5.8758,-7.8166,-8.6435,-5.0827,-1.4119,0.5318,0.3834,0.0851,4.4846,6.3709,6.5798,6.3565,5.4489,12.7958,13.2569,13.2518,14.8964,17.3486,18.9602,18.4977,10.3761,8.2053,5.7593,8.4376,4.2722,-1.2529,2.5258,-1.7003,-3.8149,-4.6734,-5.3068,-4.3665,-2.3124,-2.1155,1.1459,-0.677,1.9901,4.4753,0.3355,2.8763,2.1991,-1.8529,-5.0768,-2.5127,2.1642,7.066,4.9385,3.3122,-0.3252,-6.3547,-5.1017,-8.4916,-3.9097,-3.8643,-2.9867,-4.02,-5.9391,-9.411,-10.5011,-9.2928,-4.0783,-1.3974,-0.4228,4.4488,0.8447,null,null],"advance":6,"smooth":3,"weights":{"CHN":0.48,"EA20":0.4,"JPN":0.12},"axis":{"lLo":-3.807,"lHi":5.854,"rLo":-16.73,"rHi":25.72},"stats":{"lastDate":"2026-03","lastVal":0.568,"trend6m":0.45,"regime":"US manufacturing running HOTTER than partners","signal":"USD-supportive","dxyLastDate":"2026-07","dxyLastVal":0.84,"kFull":4,"cFull":0.352,"nFull":312,"corrAtAdv":0.322,"k10":8,"c10":0.303,"n10":195,"bciEnd":"2026-04"}};
+
+/* ---- fonts ready, then render (avoids first-paint metric wobble) ---- */
+(function(){ if(document.fonts&&document.fonts.ready){document.fonts.ready.then(render);} else {render();} })();
+
+function fmt(x,d=2){ return (x>=0?"+":"") + Number(x).toFixed(d); }
+function el(id){ return document.getElementById(id); }
+
+function render(){
+  const s = D.stats, ax = D.axis;
+  el("advTxt").textContent = D.advance;
+  el("advL").textContent   = D.advance;
+  el("chartNote").textContent =
+    `OECD amplitude-adjusted business confidence (BCICP), ${D.smooth}-mth avg · partners GDP-weighted `+
+    `China ${Math.round(D.weights.CHN*100)} / Euro area ${Math.round(D.weights.EA20*100)} / Japan ${Math.round(D.weights.JPN*100)} · `+
+    `survey data to ${s.bciEnd}, DXY to ${s.dxyLastDate}`;
+
+  /* zero reference line spanning both axes */
+  const zeroLine = {
+    id:"zeroLine",
+    afterDraw(c){
+      const y = c.scales.y.getPixelForValue(0);
+      const {left,right} = c.chartArea; const ctx=c.ctx;
+      ctx.save(); ctx.strokeStyle="#221C14"; ctx.globalAlpha=.45; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(left,y); ctx.lineTo(right,y); ctx.stroke(); ctx.restore();
+    }
+  };
+  /* faint shading where the differential runs ahead of the last dollar print (forward projection) */
+  const projShade = {
+    id:"projShade",
+    beforeDatasetsDraw(c){
+      const lbls=D.labels; let lastDxy=-1;
+      for(let i=0;i<D.dxy.length;i++){ if(D.dxy[i]!==null) lastDxy=i; }
+      if(lastDxy<0||lastDxy>=lbls.length-1) return;
+      const x0=c.scales.x.getPixelForValue(lastDxy);
+      const {right,top,bottom}=c.chartArea; const ctx=c.ctx;
+      ctx.save(); ctx.fillStyle="#D2622A"; ctx.globalAlpha=.055;
+      ctx.fillRect(x0,top,right-x0,bottom-top); ctx.restore();
+    }
+  };
+
+  const ctx = el("chart").getContext("2d");
+  new Chart(ctx,{
+    type:"line",
+    data:{ labels:D.labels, datasets:[
+      { label:"US − partners mfg confidence (adv)", data:D.diff, yAxisID:"y",
+        borderColor:"#0E756C", backgroundColor:"#0E756C", borderWidth:2.2,
+        pointRadius:0, tension:.32, spanGaps:false, order:1 },
+      { label:"DXY YoY %", data:D.dxy, yAxisID:"y1",
+        borderColor:"#221C14", backgroundColor:"#221C14", borderWidth:1.4,
+        pointRadius:0, tension:.18, spanGaps:false, order:2 }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:false,
+      interaction:{mode:"index",intersect:false},
+      layout:{padding:{top:6,right:4,bottom:0,left:0}},
+      scales:{
+        x:{ grid:{display:false},
+            ticks:{ color:"#6B5F4E", font:{family:"IBM Plex Mono",size:11}, maxRotation:0, autoSkip:false,
+              callback:function(v){ const l=D.labels[v]; return (l&&l.endsWith("-01"))? l.slice(0,4):""; } },
+            border:{color:"#E4DAC6"} },
+        y:{ position:"left", min:ax.lLo, max:ax.lHi,
+            grid:{color:"#EFE7D6"}, border:{color:"#E4DAC6"},
+            title:{display:true,text:"Confidence differential (index pts)",
+              color:"#0E756C", font:{family:"IBM Plex Sans",size:11.5,weight:"600"}},
+            ticks:{color:"#0E756C", font:{family:"IBM Plex Mono",size:11},
+              callback:v=>fmt(v,1)} },
+        y1:{ position:"right", min:ax.rLo, max:ax.rHi,
+            grid:{drawOnChartArea:false}, border:{color:"#E4DAC6"},
+            title:{display:true,text:"DXY, YoY %",
+              color:"#221C14", font:{family:"IBM Plex Sans",size:11.5,weight:"600"}},
+            ticks:{color:"#221C14", font:{family:"IBM Plex Mono",size:11},
+              callback:v=>fmt(v,0)+"%"} }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:"#221C14", titleColor:"#F7F1E6", bodyColor:"#F7F1E6",
+          borderColor:"#0E756C", borderWidth:1, padding:10, cornerRadius:8,
+          titleFont:{family:"IBM Plex Mono",size:12}, bodyFont:{family:"IBM Plex Mono",size:12},
+          callbacks:{
+            title:it=> it.length? "  "+it[0].label : "",
+            label:function(it){
+              if(it.dataset.yAxisID==="y") return "  diff (adv): "+fmt(it.parsed.y,2);
+              return "  DXY YoY: "+fmt(it.parsed.y,1)+"%";
+            }
+          }
+        }
+      }
+    },
+    plugins:[zeroLine, projShade]
+  });
+
+  /* ---- banner ---- */
+  const sigClass = s.signal.startsWith("USD-supportive")?"pos":s.signal.startsWith("USD-negative")?"neg":"";
+  el("bannerMsg").innerHTML =
+    `Latest differential <b class="${s.lastVal>=0?'pos':'neg'}">${fmt(s.lastVal,2)}</b> `+
+    `(${s.regime}); 6-mth change <b class="${s.trend6m>=0?'pos':'neg'}">${fmt(s.trend6m,2)}</b>. `+
+    `Advanced ${D.advance} months, the signal reads <b class="${sigClass}">${s.signal}</b> for the dollar `+
+    `through late ${(""+s.lastDate).slice(0,4)}\u2013${Number((""+s.lastDate).slice(0,4))+1}. `+
+    `DXY is currently ${fmt(s.dxyLastVal,1)}% YoY (${s.dxyLastDate}).`;
+
+  /* ---- stat tiles ---- */
+  const tiles = [
+    { k:"Differential · latest", v:fmt(s.lastVal,2), vc:s.lastVal>=0?"pos":"neg",
+      d:`${s.lastDate} · US mfg confidence vs GDP-weighted partners` },
+    { k:`6-month change`, v:fmt(s.trend6m,2), vc:s.trend6m>=0?"pos":"neg",
+      d:`momentum of the differential` },
+    { k:`Lead correlation`, v:fmt(s.corrAtAdv,2), vc:s.corrAtAdv>=0?"pos":"neg",
+      d:`diff(t−${D.advance}) vs DXY YoY · full sample (n=${s.nFull})` },
+    { k:`Peak lead / r`, v:`${s.kFull}m`, vc:"",
+      d:`argmax r=${fmt(s.cFull,2)} full · ${s.k10}m (r=${fmt(s.c10,2)}) on 2010+` }
+  ];
+  el("stats").innerHTML = tiles.map(t=>
+    `<div class="stat"><p class="k">${t.k}</p>`+
+    `<p class="v ${t.vc}">${t.v}</p><p class="d">${t.d}</p></div>`).join("");
+
+  /* ---- method ---- */
+  el("method").innerHTML = `
+    <b>What it is.</b> A reconstruction of the widely-circulated "US-minus-global manufacturing PMI
+    differential leads the dollar" chart (BCA Research, Clocktower Group). The economic thesis:
+    relative manufacturing momentum proxies relative growth and rate expectations, which in turn drive
+    capital flows and the exchange rate, with a lead of roughly two quarters.
+    <ul>
+      <li><b>Manufacturing momentum &mdash; proxy.</b> The source charts use S&amp;P&nbsp;Global&nbsp;/&nbsp;Markit
+        manufacturing PMI, which is <b>proprietary and not freely redistributable</b>. In its place this build uses the
+        <b>OECD amplitude-adjusted Composite Business Confidence Indicator</b> (<code>BCICP</code>), a manufacturing
+        business-tendency composite centred on 100 and normalised to comparable amplitude across countries &mdash; the
+        standard open stand-in for national PMIs. It is <i>not</i> the Markit series and will differ in level and
+        turning points, but tracks the same underlying signal in differential form.</li>
+      <li><b>Partner aggregate.</b> US <code>BCICP</code> minus a GDP-weighted composite of China, the euro area and
+        Japan (weights <code>${Math.round(D.weights.CHN*100)} / ${Math.round(D.weights.EA20*100)} / ${Math.round(D.weights.JPN*100)}</code>,
+        fixed at ~2024 nominal USD GDP) &mdash; the "major trading partners" set named in the BCA chart. China confidence
+        begins Feb&nbsp;2000, which sets the composite start.</li>
+      <li><b>Dollar.</b> ICE US Dollar Index (<code>DX-Y.NYB</code>, Yahoo Finance), month-end, expressed as
+        12-month&nbsp;% change to match the "Ann&nbsp;% Chg" axis of the source charts.</li>
+      <li><b>Transforms.</b> ${D.smooth}-month moving average on the differential; advanced <b>${D.advance} months</b>
+        (Chart&nbsp;1's convention). The shaded band at the right is the portion of the differential that now runs
+        <i>ahead</i> of the last dollar observation &mdash; i.e. the model's forward projection, not realised data.</li>
+      <li><b>Fit &amp; look-ahead.</b> Over the full common sample the differential leads DXY YoY most strongly at a
+        <b>${s.kFull}-month</b> lead (r&nbsp;=&nbsp;${fmt(s.cFull,2)}); on the post-2010 window the peak is
+        <b>${s.k10} months</b> (r&nbsp;=&nbsp;${fmt(s.c10,2)}), close to the 6&ndash;7&nbsp;month advance the source
+        charts display. The advance is applied only to align the visual &mdash; the correlations above are the honest,
+        non-overfit read. Confidence indicators are <b>revised</b> and released with a ~2-month lag, so the most recent
+        1&ndash;2 points will move.</li>
+    </ul>`;
+
+  el("foot").innerHTML =
+    `Sources: OECD Composite Leading Indicators (business confidence, <code>DSD_STES@DF_CLI</code>) via DBnomics; `+
+    `ICE / Yahoo Finance for DXY. Proxy indicator &mdash; not S&amp;P&nbsp;Global&nbsp;/&nbsp;Markit PMI. `+
+    `For research only; not investment advice. Generated ${D.generated}. Acheron Insights.`;
+}
+</script>
+<script>
+(function(){
+ function report(){
+   var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+   parent.postMessage({__fh:h,id:window.frameElement?window.frameElement.id:null},"*");
+ }
+ window.addEventListener("load",function(){report();setTimeout(report,600);setTimeout(report,1600);});
+ window.addEventListener("resize",report);
+ if(window.ResizeObserver){new ResizeObserver(report).observe(document.documentElement);}
+})();
+</script>
+
+
+</body>
+</html>

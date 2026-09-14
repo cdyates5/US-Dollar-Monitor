@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Dollar Monitor — Acheron Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F7F1E6;--card:#FDFAF3;--ink:#221C14;--muted:#6E6350;--line:#E2D8C4;--orange:#D2622A;--teal:#0E756C;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 22px 40px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--teal);text-transform:uppercase}
+h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.01em;margin:6px 0 4px}
+.sub{color:var(--muted);max-width:860px}
+.mast{border-bottom:2px solid var(--ink);padding-bottom:18px}
+.upd{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px}
+.tabs{display:flex;gap:4px;margin:20px 0 0;border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.tabs button{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:10px 15px;border:none;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;line-height:1.15}
+.tabs button .cat{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--orange)}
+.tabs button[aria-selected="true"] .cat{color:var(--orange)}
+.fbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 2px 6px}
+.fdesc{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);max-width:760px}
+.dlbtn{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;background:var(--ink);color:var(--paper);border:none;border-radius:7px;padding:8px 13px;cursor:pointer;white-space:nowrap}
+.dlbtn:hover:not(:disabled){background:var(--orange)}.dlbtn:disabled{opacity:.4;cursor:default}
+.view{display:none}.view.active{display:block}
+iframe{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--paper);height:1400px;display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="mast">
+  <div class="eyebrow">Acheron Insights · FX / Macro</div>
+  <h1>US Dollar Monitor</h1>
+  <div class="sub">Systematic reads on the ICE Dollar Index across direction, valuation, rates, external flow, growth, long-run mis-valuation and positioning. Each model is self-contained; together they trade off timing against structure.</div>
+  <div class="upd">auto-refreshed nightly · rebuilt <span id="buildstamp">__BUILDSTAMP__</span></div>
+</header>
+<div class="tabs" role="tablist">/*__TABBTNS__*/</div>
+/*__SLOTS__*/
+</div>
+<script>
+const FRAMES=/*__FRAMES__*/;
+function b64utf8(b){const bin=atob(b);const by=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);return new TextDecoder("utf-8").decode(by);}
+function load(i){const f=document.getElementById("if-"+i);if(!f.getAttribute("srcdoc"))f.setAttribute("srcdoc",b64utf8(FRAMES[i]));}
+function showTab(i){document.querySelectorAll(".view").forEach((v,j)=>v.classList.toggle("active",j===i));document.querySelectorAll(".tabs button").forEach((b,j)=>b.setAttribute("aria-selected",j===i));load(i);}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>showTab(+b.dataset.i)));
+window.addEventListener("message",e=>{const d=e.data||{};
+  if(typeof d.__fh==="number"&&d.id){const f=document.getElementById(d.id);if(f)f.style.height=(d.__fh+20)+"px";}
+  if(d.__csvready&&d.id){const i=d.id.replace("if-","");const b=document.querySelector('.dlbtn[data-i="'+i+'"]');if(b)b.disabled=false;}
+  if(typeof d.__goto==="number")showTab(d.__goto);});
+document.querySelectorAll(".dlbtn").forEach(btn=>btn.addEventListener("click",()=>{
+  const i=btn.dataset.i,slug=btn.dataset.slug,f=document.getElementById("if-"+i);let csv=null;
+  try{csv=f.contentWindow.__exportCSV&&f.contentWindow.__exportCSV();}catch(e){}
+  if(!csv){btn.textContent="Data unavailable";setTimeout(()=>btn.textContent="Download data (CSV)",1800);return;}
+  const bl=new Blob([csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");
+  a.href=URL.createObjectURL(bl);a.download=slug+".csv";a.click();URL.revokeObjectURL(a.href);}));
+load(0);
+</script>
+</body>
+</html>
