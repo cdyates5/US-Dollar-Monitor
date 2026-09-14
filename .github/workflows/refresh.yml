@@ -1,0 +1,56 @@
+name: Refresh Dollar Monitor
+
+# Rebuilds every model from live data and commits the refreshed dashboard.
+# Deliberately self-contained: no Pages dependency, no environment, no matrix —
+# so it cannot get wedged by anything outside the build itself.
+
+on:
+  workflow_dispatch: {}                 # the "Run workflow" button
+  schedule:
+    - cron: "0 6 * * 1-5"               # 06:00 UTC, weekdays
+  push:
+    branches: [main]
+    paths:
+      - "models/**"
+      - "build/**"
+      - "site/tabs/**"
+      - ".github/workflows/refresh.yml"
+
+permissions:
+  contents: write                       # to commit the rebuilt HTML
+
+concurrency:                            # a new run cancels a stuck old one
+  group: refresh
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20                  # never hang; die and let the next run retry
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Build monitor
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python -m build.run
+
+      - name: Commit refreshed dashboard
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@users.noreply.github.com"
+          git add site/us-dollar-monitor.html data/cache
+          if git diff --quiet --cached; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: refresh $(date -u +%F)"
+            git push
+          fi
